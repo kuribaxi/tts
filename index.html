@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Text-till-Tal Generator - Flera Källor</title>
-    <script src="https://code.responsivevoice.org/responsivevoice.js?key=jQZ2zSb7"></script>
+    <title>Text-till-Tal Generator</title>
     <style>
         * {
             margin: 0;
@@ -23,7 +22,7 @@
         }
 
         .container {
-            max-width: 1000px;
+            max-width: 900px;
             width: 100%;
             background: rgba(255, 255, 255, 0.95);
             border-radius: 20px;
@@ -84,67 +83,11 @@
             color: #2d3748;
         }
 
-        .source-selector {
-            margin: 30px 0;
-            padding: 20px;
-            background: #f0f7ff;
-            border-radius: 12px;
-            border-left: 4px solid #667eea;
-        }
-
-        .source-selector h3 {
-            color: #2d3748;
-            margin-bottom: 15px;
-            font-size: 1.1em;
-        }
-
-        .source-options {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-        }
-
-        .source-option {
-            padding: 15px;
-            border: 2px solid #e2e8f0;
-            border-radius: 10px;
-            background: white;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-align: center;
-        }
-
-        .source-option:hover {
-            border-color: #667eea;
-            transform: translateY(-2px);
-        }
-
-        .source-option.active {
-            border-color: #667eea;
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
-        }
-
-        .source-badge {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.75em;
-            font-weight: bold;
-            margin-top: 5px;
-        }
-
-        .badge-premium {
-            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
-            color: #744210;
-        }
-
-        .badge-free {
-            background: #e6fffa;
-            color: #234e52;
-        }
-
         .voice-section {
             margin: 30px 0;
+            padding: 20px;
+            background: #f7fafc;
+            border-radius: 12px;
         }
 
         .voice-section h3 {
@@ -176,6 +119,15 @@
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
+        .voice-info {
+            margin-top: 10px;
+            padding: 10px;
+            background: #e6fffa;
+            border-radius: 8px;
+            color: #234e52;
+            font-size: 0.9em;
+        }
+
         .text-input-section {
             margin: 30px 0;
         }
@@ -205,53 +157,6 @@
             outline: none;
             border-color: #667eea;
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
-        .controls {
-            display: flex;
-            gap: 15px;
-            margin-top: 20px;
-            flex-wrap: wrap;
-        }
-
-        .btn {
-            flex: 1;
-            min-width: 150px;
-            padding: 18px 30px;
-            border: none;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .btn:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
-        }
-
-        .btn:active {
-            transform: translateY(0);
-        }
-
-        .btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .btn-generate {
-            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
-            color: white;
-        }
-
-        .btn-stop {
-            background: linear-gradient(135deg, #fc8181 0%, #f56565 100%);
-            color: white;
         }
 
         .settings {
@@ -308,6 +213,49 @@
             font-weight: bold;
         }
 
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            flex: 1;
+            min-width: 150px;
+            padding: 18px 30px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-generate {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+        }
+
+        .btn-stop {
+            background: linear-gradient(135deg, #fc8181 0%, #f56565 100%);
+            color: white;
+        }
+
         .status {
             margin-top: 20px;
             padding: 15px 20px;
@@ -315,19 +263,16 @@
             text-align: center;
             font-weight: bold;
             display: none;
+        }
+
+        .status.show {
+            display: block;
             animation: fadeIn 0.3s;
         }
 
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(-10px); }
             to { opacity: 1; transform: translateY(0); }
-        }
-
-        .status.show {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
         }
 
         .status.playing {
@@ -371,50 +316,12 @@
             color: white;
             transform: translateX(5px);
         }
-
-        .info-box {
-            margin: 20px 0;
-            padding: 15px;
-            background: #fffaf0;
-            border-radius: 12px;
-            border-left: 4px solid #ed8936;
-        }
-
-        .info-box h4 {
-            color: #c05621;
-            margin-bottom: 8px;
-            font-size: 0.95em;
-        }
-
-        .info-box p {
-            color: #744210;
-            font-size: 0.85em;
-            line-height: 1.5;
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                padding: 20px;
-            }
-
-            h1 {
-                font-size: 1.5em;
-            }
-
-            .controls {
-                flex-direction: column;
-            }
-
-            .btn {
-                width: 100%;
-            }
-        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>🎤 Text-till-Tal Generator</h1>
-        <p class="subtitle">Välj röstkälla och språk för högkvalitativt tal</p>
+        <p class="subtitle">Naturliga AI-röster för svenska och engelska</p>
 
         <!-- Språkväljare -->
         <div class="language-selector">
@@ -428,52 +335,26 @@
             </div>
         </div>
 
-        <!-- Källväljare -->
-        <div class="source-selector">
-            <h3>🔊 Välj röstkälla:</h3>
-            <div class="source-options">
-                <div class="source-option active" data-source="responsive">
-                    <div style="font-size: 2em; margin-bottom: 5px;">☁️</div>
-                    <div style="font-weight: bold; color: #2d3748;">ResponsiveVoice</div>
-                    <div style="font-size: 0.85em; color: #718096; margin-top: 5px;">Naturliga molnröster</div>
-                    <span class="source-badge badge-premium">PREMIUM</span>
-                </div>
-                <div class="source-option" data-source="browser">
-                    <div style="font-size: 2em; margin-bottom: 5px;">🖥️</div>
-                    <div style="font-weight: bold; color: #2d3748;">Systemröster</div>
-                    <div style="font-size: 0.85em; color: #718096; margin-top: 5px;">Lokala webbläsarröster</div>
-                    <span class="source-badge badge-free">GRATIS</span>
-                </div>
-                <div class="source-option" data-source="google">
-                    <div style="font-size: 2em; margin-bottom: 5px;">🌐</div>
-                    <div style="font-weight: bold; color: #2d3748;">Google Translate</div>
-                    <div style="font-size: 0.85em; color: #718096; margin-top: 5px;">Snabb översättningsröst</div>
-                    <span class="source-badge badge-free">GRATIS</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Info om ResponsiveVoice -->
-        <div class="info-box" id="responsiveInfo">
-            <h4>ℹ️ Om ResponsiveVoice</h4>
-            <p>ResponsiveVoice erbjuder högkvalitativa naturliga röster med AI. Gratis version har daglig användningsgräns. För obegränsad användning, besök responsivevoice.org</p>
-        </div>
-
         <!-- Röstväljare -->
-        <div class="voice-section" id="voiceSection">
+        <div class="voice-section">
             <h3>🎤 Välj röst:</h3>
             <select id="voiceSelect">
-                <option value="">Laddar röster...</option>
+                <option value="sv-SE,Swedish Female">👩 Svenska - Kvinnlig</option>
+                <option value="sv-SE,Swedish Male">👨 Svenska - Manlig</option>
+                <option value="en-US,US English Female">👩 Amerikansk Engelska - Kvinnlig</option>
+                <option value="en-US,US English Male">👨 Amerikansk Engelska - Manlig</option>
+                <option value="en-GB,UK English Female">👩 Brittisk Engelska - Kvinnlig</option>
+                <option value="en-GB,UK English Male">👨 Brittisk Engelska - Manlig</option>
             </select>
-            <p style="margin-top: 10px; color: #718096; font-size: 0.9em;" id="voiceInfo">
-                💡 Välj en röst från listan ovan
-            </p>
+            <div class="voice-info" id="voiceInfo">
+                ✨ Högkvalitativa AI-röster från Google Translate
+            </div>
         </div>
 
         <!-- Textinmatning -->
         <div class="text-input-section">
             <label for="textInput">✍️ Skriv din text här:</label>
-            <textarea id="textInput" placeholder="Skriv texten du vill omvandla till tal..."></textarea>
+            <textarea id="textInput" placeholder="Skriv texten du vill omvandla till tal...">Hej! Välkommen till text-till-tal generatorn.</textarea>
         </div>
 
         <!-- Exempeltexter -->
@@ -483,18 +364,14 @@
         </div>
 
         <!-- Inställningar -->
-        <div class="settings" id="settingsPanel">
+        <div class="settings">
             <div class="setting-item">
                 <label>🏃 Hastighet: <span class="value-display" id="speedValue">1.0x</span></label>
                 <input type="range" id="speedSlider" min="0.5" max="2.0" step="0.1" value="1.0">
             </div>
             <div class="setting-item">
-                <label>🎵 Tonhöjd: <span class="value-display" id="pitchValue">1.0</span></label>
-                <input type="range" id="pitchSlider" min="0.5" max="2.0" step="0.1" value="1.0">
-            </div>
-            <div class="setting-item">
                 <label>🔊 Volym: <span class="value-display" id="volumeValue">100%</span></label>
-                <input type="range" id="volumeSlider" min="0" max="100" step="1" value="100">
+                <input type="range" id="volumeSlider" min="0" max="100" step="5" value="100">
             </div>
         </div>
 
@@ -515,38 +392,30 @@
     <script>
         const examples = {
             sv: [
-                'Hej! Välkommen till vår avancerade text-till-tal generator.',
-                'Sverige är ett vackert land i Nordeuropa med rik historia.',
+                'Hej! Välkommen till text-till-tal generatorn.',
+                'Sverige är ett vackert land i Nordeuropa.',
                 'God morgon och ha en fantastisk dag!',
-                'Moderna AI-röster låter nästan som riktiga personer.',
-                'Stockholm är Sveriges huvudstad och största stad.'
+                'Stockholm är Sveriges huvudstad.',
+                'Moderna AI-röster låter nästan som riktiga personer.'
             ],
             en: [
-                'Hello! Welcome to our advanced text-to-speech generator.',
+                'Hello! Welcome to the text-to-speech generator.',
                 'Technology is advancing rapidly in the modern world.',
-                'Have a wonderful day filled with joy and success!',
-                'Artificial intelligence is transforming how we communicate.',
+                'Have a wonderful day filled with joy!',
+                'Artificial intelligence is transforming communication.',
                 'The quick brown fox jumps over the lazy dog.'
             ]
         };
 
-        const placeholders = {
-            sv: 'Skriv texten du vill omvandla till tal...',
-            en: 'Write the text you want to convert to speech...'
-        };
-
         let currentLang = 'sv';
-        let currentSource = 'responsive';
-        let currentUtterance = null;
-        let isPlaying = false;
+        let currentAudio = null;
 
         // Initialisering
         document.addEventListener('DOMContentLoaded', function() {
             setupLanguageSelector();
-            setupSourceSelector();
             setupSliders();
             updateExamples();
-            loadVoices();
+            updateVoiceOptions();
         });
 
         // Språkväljare
@@ -558,33 +427,32 @@
                     this.classList.add('active');
                     currentLang = this.dataset.lang;
                     updateExamples();
-                    loadVoices();
-                    document.getElementById('textInput').placeholder = placeholders[currentLang];
+                    updateVoiceOptions();
                 });
             });
         }
 
-        // Källväljare
-        function setupSourceSelector() {
-            const options = document.querySelectorAll('.source-option');
-            options.forEach(option => {
-                option.addEventListener('click', function() {
-                    options.forEach(opt => opt.classList.remove('active'));
-                    this.classList.add('active');
-                    currentSource = this.dataset.source;
-                    loadVoices();
-                    updateInfoBox();
-                });
-            });
-        }
+        // Uppdatera röstval baserat på språk
+        function updateVoiceOptions() {
+            const voiceSelect = document.getElementById('voiceSelect');
+            voiceSelect.innerHTML = '';
 
-        // Uppdatera info box
-        function updateInfoBox() {
-            const infoBox = document.getElementById('responsiveInfo');
-            if (currentSource === 'responsive') {
-                infoBox.style.display = 'block';
+            if (currentLang === 'sv') {
+                voiceSelect.innerHTML = `
+                    <option value="sv">👩 Svenska - Kvinnlig</option>
+                    <option value="sv">👨 Svenska - Manlig</option>
+                `;
+                document.getElementById('voiceInfo').textContent = 
+                    '✨ Svenska AI-röster från Google Translate';
             } else {
-                infoBox.style.display = 'none';
+                voiceSelect.innerHTML = `
+                    <option value="en">👩 Amerikansk Engelska - Kvinnlig</option>
+                    <option value="en">👨 Amerikansk Engelska - Manlig</option>
+                    <option value="en-GB">👩 Brittisk Engelska - Kvinnlig</option>
+                    <option value="en-GB">👨 Brittisk Engelska - Manlig</option>
+                `;
+                document.getElementById('voiceInfo').textContent = 
+                    '✨ Engelska AI-röster från Google Translate';
             }
         }
 
@@ -609,111 +477,20 @@
             document.getElementById('speedSlider').addEventListener('input', function() {
                 document.getElementById('speedValue').textContent = this.value + 'x';
             });
-            
-            document.getElementById('pitchSlider').addEventListener('input', function() {
-                document.getElementById('pitchValue').textContent = this.value;
-            });
 
             document.getElementById('volumeSlider').addEventListener('input', function() {
                 document.getElementById('volumeValue').textContent = this.value + '%';
             });
         }
 
-        // Ladda röster baserat på källa
-        function loadVoices() {
-            const voiceSelect = document.getElementById('voiceSelect');
-            voiceSelect.innerHTML = '';
-
-            if (currentSource === 'responsive') {
-                loadResponsiveVoices();
-            } else if (currentSource === 'browser') {
-                loadBrowserVoices();
-            } else if (currentSource === 'google') {
-                loadGoogleVoices();
-            }
-        }
-
-        // ResponsiveVoice röster
-        function loadResponsiveVoices() {
-            const voiceSelect = document.getElementById('voiceSelect');
-            
-            const responsiveVoices = {
-                sv: [
-                    { name: 'Swedish Female', value: 'Swedish Female', icon: '👩' },
-                    { name: 'Swedish Male', value: 'Swedish Male', icon: '👨' }
-                ],
-                en: [
-                    { name: 'UK English Female', value: 'UK English Female', icon: '👩' },
-                    { name: 'UK English Male', value: 'UK English Male', icon: '👨' },
-                    { name: 'US English Female', value: 'US English Female', icon: '👩' },
-                    { name: 'US English Male', value: 'US English Male', icon: '👨' },
-                    { name: 'Australian Female', value: 'Australian Female', icon: '👩' },
-                    { name: 'Australian Male', value: 'Australian Male', icon: '👨' }
-                ]
-            };
-
-            const voices = responsiveVoices[currentLang] || responsiveVoices.en;
-            
-            voices.forEach(voice => {
-                const option = document.createElement('option');
-                option.value = voice.value;
-                option.textContent = `${voice.icon} ${voice.name} ⭐`;
-                voiceSelect.appendChild(option);
-            });
-
-            document.getElementById('voiceInfo').textContent = 
-                `✨ ${voices.length} högkvalitativa AI-röster tillgängliga`;
-        }
-
-        // Webbläsarröster
-        function loadBrowserVoices() {
-            const voiceSelect = document.getElementById('voiceSelect');
-            const voices = speechSynthesis.getVoices();
-            
-            const filteredVoices = voices.filter(v => v.lang.startsWith(currentLang));
-            
-            if (filteredVoices.length === 0) {
-                voiceSelect.innerHTML = '<option value="">Inga systemröster för detta språk</option>';
-                document.getElementById('voiceInfo').textContent = 
-                    '⚠️ Inga röster hittades. Installera svenska röster i ditt system.';
-                return;
-            }
-
-            filteredVoices.forEach((voice, index) => {
-                const option = document.createElement('option');
-                option.value = index;
-                const icon = voice.name.toLowerCase().includes('female') || 
-                            voice.name.toLowerCase().includes('klara') || 
-                            voice.name.toLowerCase().includes('alva') ? '👩' : '👨';
-                option.textContent = `${icon} ${voice.name}`;
-                voiceSelect.appendChild(option);
-            });
-
-            document.getElementById('voiceInfo').textContent = 
-                `🖥️ ${filteredVoices.length} systemröster hittade`;
-        }
-
-        // Google Translate röster
-        function loadGoogleVoices() {
-            const voiceSelect = document.getElementById('voiceSelect');
-            
-            const option = document.createElement('option');
-            option.value = 'google';
-            option.textContent = `🌐 Google Translate ${currentLang === 'sv' ? 'Svenska' : 'English'}`;
-            voiceSelect.appendChild(option);
-
-            document.getElementById('voiceInfo').textContent = 
-                '🌐 Snabb översättningsröst från Google';
-        }
-
         // Visa status
         function showStatus(message, type) {
             const status = document.getElementById('status');
             status.className = 'status show ' + type;
-            status.innerHTML = message;
+            status.textContent = message;
         }
 
-        // Generera tal
+        // Generera tal med Google Translate TTS
         function generateSpeech() {
             const text = document.getElementById('textInput').value.trim();
             
@@ -722,132 +499,74 @@
                 return;
             }
 
+            if (text.length > 200) {
+                showStatus('⚠️ Texten är för lång. Max 200 tecken.', 'error');
+                return;
+            }
+
             stopSpeech();
 
-            const speed = parseFloat(document.getElementById('speedSlider').value);
-            const pitch = parseFloat(document.getElementById('pitchSlider').value);
-            const volume = parseInt(document.getElementById('volumeSlider').value) / 100;
-
-            if (currentSource === 'responsive') {
-                playResponsiveVoice(text, speed, pitch, volume);
-            } else if (currentSource === 'browser') {
-                playBrowserVoice(text, speed, pitch, volume);
-            } else if (currentSource === 'google') {
-                playGoogleVoice(text);
-            }
-        }
-
-        // ResponsiveVoice uppspelning
-        function playResponsiveVoice(text, speed, pitch, volume) {
             const voiceSelect = document.getElementById('voiceSelect');
-            const voiceName = voiceSelect.value;
-
-            showStatus('🔊 Spelar upp med ResponsiveVoice...', 'playing');
-            updateButtonStates(true);
-
-            responsiveVoice.speak(text, voiceName, {
-                rate: speed,
-                pitch: pitch,
-                volume: volume,
-                onstart: function() {
-                    isPlaying = true;
-                },
-                onend: function() {
-                    showStatus('✅ Uppspelning klar!', 'playing');
-                    updateButtonStates(false);
-                    isPlaying = false;
-                    setTimeout(() => {
-                        document.getElementById('status').classList.remove('show');
-                    }, 3000);
-                },
-                onerror: function(error) {
-                    showStatus('❌ Fel: ' + error, 'error');
-                    updateButtonStates(false);
-                    isPlaying = false;
-                }
-            });
-        }
-
-        // Webbläsarröst uppspelning
-        function playBrowserVoice(text, speed, pitch, volume) {
-            speechSynthesis.cancel();
+            const langCode = voiceSelect.value || currentLang;
             
-            currentUtterance = new SpeechSynthesisUtterance(text);
-            currentUtterance.lang = currentLang === 'sv' ? 'sv-SE' : 'en-US';
-            currentUtterance.rate = speed;
-            currentUtterance.pitch = pitch;
-            currentUtterance.volume = volume;
-
-            const voiceSelect = document.getElementById('voiceSelect');
-            const voices = speechSynthesis.getVoices();
-            const selectedIndex = parseInt(voiceSelect.value);
-            
-            const filteredVoices = voices.filter(v => v.lang.startsWith(currentLang));
-            if (filteredVoices[selectedIndex]) {
-                currentUtterance.voice = filteredVoices[selectedIndex];
-            }
-
-            currentUtterance.onstart = function() {
-                showStatus('🔊 Spelar upp...', 'playing');
-                updateButtonStates(true);
-                isPlaying = true;
-            };
-
-            currentUtterance.onend = function() {
-                showStatus('✅ Uppspelning klar!', 'playing');
-                updateButtonStates(false);
-                isPlaying = false;
-                setTimeout(() => {
-                    document.getElementById('status').classList.remove('show');
-                }, 3000);
-            };
-
-            currentUtterance.onerror = function(event) {
-                showStatus('❌ Ett fel uppstod: ' + event.error, 'error');
-                updateButtonStates(false);
-                isPlaying = false;
-            };
-
-            speechSynthesis.speak(currentUtterance);
-        }
-
-        // Google Translate uppspelning
-        function playGoogleVoice(text) {
-            const langCode = currentLang === 'sv' ? 'sv' : 'en';
+            // Använd Google Translate TTS API
             const url = `https://translate.google.com/translate_tts?ie=UTF-8&tl=${langCode}&client=tw-ob&q=${encodeURIComponent(text)}`;
             
-            const audio = new Audio(url);
+            currentAudio = new Audio(url);
             
-            audio.onplay = function() {
-                showStatus('🔊 Spelar upp med Google Translate...', 'playing');
+            const volume = parseInt(document.getElementById('volumeSlider').value) / 100;
+            currentAudio.volume = volume;
+
+            // Hastighet fungerar inte direkt på Google TTS, men vi kan försöka
+            const speed = parseFloat(document.getElementById('speedSlider').value);
+            if (currentAudio.playbackRate !== undefined) {
+                currentAudio.playbackRate = speed;
+            }
+
+            currentAudio.onloadstart = function() {
+                showStatus('⏳ Laddar ljud...', 'playing');
                 updateButtonStates(true);
-                isPlaying = true;
             };
 
-            audio.onended = function() {
+            currentAudio.onplay = function() {
+                showStatus('🔊 Spelar upp...', 'playing');
+            };
+
+            currentAudio.onended = function() {
                 showStatus('✅ Uppspelning klar!', 'playing');
                 updateButtonStates(false);
-                isPlaying = false;
                 setTimeout(() => {
                     document.getElementById('status').classList.remove('show');
                 }, 3000);
             };
 
-            audio.onerror = function() {
-                showStatus('❌ Kunde inte spela upp med Google Translate', 'error');
+            currentAudio.onerror = function() {
+                showStatus('❌ Kunde inte spela upp. Prova kortare text.', 'error');
                 updateButtonStates(false);
-                isPlaying = false;
             };
 
-            audio.play();
+            currentAudio.play().catch(error => {
+                console.error('Play error:', error);
+                showStatus('❌ Kunde inte starta uppspelning', 'error');
+                updateButtonStates(false);
+            });
         }
 
         // Stoppa uppspelning
         function stopSpeech() {
-            if (currentSource === 'responsive') {
-                responsiveVoice.cancel();
-            } else if (currentSource === 'browser') {
-                speechSynthesis.cancel();
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio.currentTime = 0;
+                currentAudio = null;
             }
-            
-            showStatus('⏹️ Stoppad', 'playing');
+            updateButtonStates(false);
+        }
+
+        // Uppdatera knappstatus
+        function updateButtonStates(playing) {
+            document.getElementById('generateBtn').disabled = playing;
+            document.getElementById('stopBtn').disabled = !playing;
+        }
+    </script>
+</body>
+</html>
