@@ -78,14 +78,6 @@
             margin-bottom: 8px;
         }
 
-        .flag-img {
-            width: 50px;
-            height: 35px;
-            object-fit: cover;
-            border-radius: 4px;
-            margin-bottom: 8px;
-        }
-
         .language-name {
             font-weight: bold;
             color: #2d3748;
@@ -203,64 +195,6 @@
             color: white;
         }
 
-        .btn-record {
-            background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
-            color: white;
-        }
-
-        .btn-record.recording {
-            background: linear-gradient(135deg, #fc8181 0%, #f56565 100%);
-            animation: pulse 1.5s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
-        }
-
-        .recording-section {
-            margin: 20px 0;
-            padding: 20px;
-            background: linear-gradient(135deg, #fff5f5 0%, #fed7d7 100%);
-            border-radius: 12px;
-            border: 2px solid #fc8181;
-            display: none;
-        }
-
-        .recording-section.show {
-            display: block;
-        }
-
-        .recording-section h3 {
-            color: #c53030;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .recording-timer {
-            font-size: 2em;
-            color: #e53e3e;
-            text-align: center;
-            margin: 15px 0;
-            font-weight: bold;
-            font-family: 'Courier New', monospace;
-        }
-
-        .recording-controls {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-        }
-
-        .recorded-audio {
-            margin-top: 15px;
-            padding: 15px;
-            background: white;
-            border-radius: 8px;
-        }
-
         .settings {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -367,43 +301,6 @@
             border: 2px solid #feb2b2;
         }
 
-        .audio-visualizer {
-            margin-top: 20px;
-            padding: 20px;
-            background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
-            border-radius: 12px;
-            display: none;
-        }
-
-        .audio-visualizer.show {
-            display: block;
-        }
-
-        .audio-visualizer h3 {
-            color: #2d3748;
-            margin-bottom: 15px;
-            font-size: 1.1em;
-        }
-
-        audio {
-            width: 100%;
-            margin-top: 10px;
-        }
-
-        .spinner {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #667eea;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
         .examples {
             margin: 20px 0;
             padding: 15px;
@@ -472,33 +369,6 @@
                 <div class="flag">🇬🇧</div>
                 <div class="language-name">English</div>
             </div>
-            <div class="language-option" data-lang="fa" data-dir="rtl">
-                <div class="flag">🇮🇷</div>
-                <div class="language-name">فارسی</div>
-            </div>
-            <div class="language-option" data-lang="ku" data-dir="rtl">
-                <div class="flag" style="font-size: 3em; line-height: 1;">
-                    <svg width="50" height="35" viewBox="0 0 900 600" xmlns="http://www.w3.org/2000/svg" style="border-radius: 4px;">
-                        <rect fill="#EE2A35" width="900" height="600"/>
-                        <rect fill="#FFFFFF" y="200" width="900" height="200"/>
-                        <rect fill="#21BF73" y="400" width="900" height="200"/>
-                        <g transform="translate(450,300)">
-                            <circle fill="#FFD700" r="60"/>
-                            <g id="ray" fill="#FFD700">
-                                <polygon points="0,-80 -8,-95 8,-95"/>
-                            </g>
-                            <use href="#ray" transform="rotate(45)"/>
-                            <use href="#ray" transform="rotate(90)"/>
-                            <use href="#ray" transform="rotate(135)"/>
-                            <use href="#ray" transform="rotate(180)"/>
-                            <use href="#ray" transform="rotate(225)"/>
-                            <use href="#ray" transform="rotate(270)"/>
-                            <use href="#ray" transform="rotate(315)"/>
-                        </g>
-                    </svg>
-                </div>
-                <div class="language-name">کوردی</div>
-            </div>
         </div>
 
         <!-- Röstväljare -->
@@ -510,7 +380,7 @@
                 <option value="">Laddar röster...</option>
             </select>
             <p style="margin-top: 10px; color: #718096; font-size: 0.9em;">
-                💡 Välj en röst från listan ovan för bästa resultat
+                💡 <span id="voiceInfo">Välj en röst från listan ovan för bästa resultat</span>
             </p>
         </div>
 
@@ -554,46 +424,8 @@
             </button>
         </div>
 
-        <!-- Inspelningssektion -->
-        <div style="margin-top: 20px; text-align: center;">
-            <button class="btn btn-record" id="recordToggleBtn" onclick="toggleRecording()">
-                🎙️ Spela in din röst
-            </button>
-        </div>
-
-        <div class="recording-section" id="recordingSection">
-            <h3>🎙️ Inspelning pågår</h3>
-            <div class="recording-timer" id="recordingTimer">00:00</div>
-            <p style="text-align: center; color: #718096; margin-bottom: 15px;">
-                Tala in texten du vill använda för röstkloning...
-            </p>
-            <div class="recording-controls">
-                <button class="btn btn-stop" onclick="stopRecording()" style="flex: 1;">
-                    ⏹️ Stoppa inspelning
-                </button>
-            </div>
-            <div class="recorded-audio" id="recordedAudioSection" style="display: none;">
-                <h4 style="color: #2d3748; margin-bottom: 10px;">📻 Din inspelning:</h4>
-                <audio id="recordedAudio" controls style="width: 100%;"></audio>
-                <div style="margin-top: 15px; display: flex; gap: 10px;">
-                    <button class="btn" onclick="saveRecording()" style="flex: 1; background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);">
-                        💾 Spara inspelning
-                    </button>
-                    <button class="btn" onclick="deleteRecording()" style="flex: 1; background: linear-gradient(135deg, #fc8181 0%, #f56565 100%);">
-                        🗑️ Ta bort
-                    </button>
-                </div>
-            </div>
-        </div>
-
         <!-- Status -->
         <div class="status" id="status"></div>
-
-        <!-- Audio Visualizer -->
-        <div class="audio-visualizer" id="audioVisualizer">
-            <h3>🎧 Uppspelningskontroller</h3>
-            <audio id="audioElement" controls></audio>
-        </div>
     </div>
 
     <script>
@@ -603,33 +435,21 @@
                 'Hej! Välkommen till vår text-till-tal generator.',
                 'Sverige är ett vackert land i Nordeuropa med rik historia.',
                 'God morgon och ha en fantastisk dag!',
-                'Teknik förändrar världen snabbare än någonsin tidigare.'
+                'Teknik förändrar världen snabbare än någonsin tidigare.',
+                'Stockholm är Sveriges huvudstad och största stad.',
+                'Svenska språket talas av cirka 10 miljoner människor.'
             ],
             en: [
                 'Hello! Welcome to our text-to-speech generator.',
                 'Technology is advancing rapidly in the modern world.',
                 'Have a wonderful day filled with joy and success!',
                 'The quick brown fox jumps over the lazy dog.'
-            ],
-            fa: [
-                'سلام! به سرویس تبدیل متن به گفتار ما خوش آمدید.',
-                'ایران کشوری زیبا با تاریخ و فرهنگ غنی است.',
-                'صبح بخیر و روز خوبی داشته باشید!',
-                'فناوری در حال تغییر سریع جهان است.'
-            ],
-            ku: [
-                'سڵاو! بەخێربێن بۆ خزمەتگوزاری دەنگکردنەوە.',
-                'کوردستان خاکێکی جوانە بە مێژوویەکی دەوڵەمەند.',
-                'بەیانی باش و ڕۆژێکی خۆشت بۆ ئارەزوو دەکەم!',
-                'تەکنەلۆژیا بە خێرایی جیهان دەگۆڕێت.'
             ]
         };
 
         const placeholders = {
             sv: 'Skriv texten du vill omvandla till tal...',
-            en: 'Write the text you want to convert to speech...',
-            fa: 'متن مورد نظر خود را بنویسید...',
-            ku: 'دەقەکەت بنووسە...'
+            en: 'Write the text you want to convert to speech...'
         };
 
         let currentLang = 'sv';
@@ -637,14 +457,6 @@
         let currentUtterance = null;
         let isPaused = false;
         let availableVoices = [];
-
-        // Inspelningsvariabler
-        let mediaRecorder = null;
-        let audioChunks = [];
-        let recordingStream = null;
-        let recordingStartTime = null;
-        let recordingTimer = null;
-        let recordedBlob = null;
 
         // Initialisering
         document.addEventListener('DOMContentLoaded', function() {
@@ -705,7 +517,6 @@
             
             availableVoices = voices;
             
-            // Rensa gamla alternativ
             voiceSelect.innerHTML = '';
             
             if (voices.length === 0) {
@@ -724,11 +535,11 @@
                 languageGroups[langCode].push({voice, index});
             });
             
-            // Skapa options grupperade efter språk
+            // Språknamn
             const langNames = {
                 'sv': '🇸🇪 Svenska',
                 'en': '🇬🇧 English',
-                'ar': '🇸🇦 العربية (Arabiska)',
+                'ar': '🇸🇦 العربية',
                 'fa': '🇮🇷 فارسی',
                 'de': '🇩🇪 Deutsch',
                 'es': '🇪🇸 Español',
@@ -737,10 +548,15 @@
                 'ja': '🇯🇵 日本語',
                 'zh': '🇨🇳 中文',
                 'ru': '🇷🇺 Русский',
-                'pt': '🇵🇹 Português'
+                'pt': '🇵🇹 Português',
+                'nl': '🇳🇱 Nederlands',
+                'pl': '🇵🇱 Polski',
+                'da': '🇩🇰 Dansk',
+                'no': '🇳🇴 Norsk',
+                'fi': '🇫🇮 Suomi'
             };
             
-            // Sortera språk så nuvarande språk kommer först
+            // Sortera språk
             const sortedLangs = Object.keys(languageGroups).sort((a, b) => {
                 if (a === currentLang) return -1;
                 if (b === currentLang) return 1;
@@ -748,57 +564,114 @@
             });
             
             sortedLangs.forEach(langCode => {
-                const groupName = langNames[langCode] || `${langCode.toUpperCase()}`;
+                const groupName = langNames[langCode] || langCode.toUpperCase();
                 const optgroup = document.createElement('optgroup');
                 optgroup.label = groupName;
                 
-                languageGroups[langCode].forEach(({voice, index}) => {
+                // Sortera röster
+                const sortedVoices = languageGroups[langCode].sort((a, b) => {
+                    const aName = a.voice.name.toLowerCase();
+                    const bName = b.voice.name.toLowerCase();
+                    
+                    // Prioritera svenska röster
+                    const aSwedish = aName.includes('alva') || aName.includes('klara') || aName.includes('oskar');
+                    const bSwedish = bName.includes('alva') || bName.includes('klara') || bName.includes('oskar');
+                    
+                    if (aSwedish && !bSwedish) return -1;
+                    if (!aSwedish && bSwedish) return 1;
+                    
+                    return aName.localeCompare(bName);
+                });
+                
+                sortedVoices.forEach(({voice, index}) => {
                     const option = document.createElement('option');
                     option.value = index;
-                    option.textContent = `${voice.name} (${voice.lang})`;
+                    
+                    // Lägg till ikoner
+                    let icon = '';
+                    const nameLower = voice.name.toLowerCase();
+                    
+                    if (nameLower.includes('female') || nameLower.includes('alva') || nameLower.includes('klara')) {
+                        icon = '👩 ';
+                    } else if (nameLower.includes('male') || nameLower.includes('oskar')) {
+                        icon = '👨 ';
+                    }
+                    
+                    option.textContent = `${icon}${voice.name}`;
+                    
                     if (voice.localService) {
                         option.textContent += ' 🖥️';
                     }
+                    
+                    // Markera populära svenska röster
+                    if (langCode === 'sv') {
+                        if (nameLower.includes('alva') || nameLower.includes('klara') || nameLower.includes('oskar')) {
+                            option.textContent += ' ⭐';
+                        }
+                    }
+                    
                     optgroup.appendChild(option);
                 });
                 
                 voiceSelect.appendChild(optgroup);
             });
             
-            // Välj första rösten för nuvarande språk
-            filterVoicesByLanguage();
+            // Visa antal svenska röster
+            const swedishVoices = voices.filter(v => v.lang.startsWith('sv'));
+            const voiceInfo = document.getElementById('voiceInfo');
+            if (swedishVoices.length > 0) {
+                voiceInfo.textContent = `Hittade ${swedishVoices.length} svenska röster! Prova Alva, Klara eller Oskar ⭐`;
+            }
             
-            console.log('Röster laddade i select:', voices.length);
+            console.log(`Hittade ${swedishVoices.length} svenska röster:`, 
+                        swedishVoices.map(v => v.name).join(', '));
+            
+            filterVoicesByLanguage();
         }
         
-        // Filtrera och välj röster baserat på valt språk
+        // Filtrera röster baserat på språk
         function filterVoicesByLanguage() {
             const voiceSelect = document.getElementById('voiceSelect');
             const voices = speechSynthesis.getVoices();
             
             if (voices.length === 0) return;
             
-            // Hitta första matchande rösten för nuvarande språk
             const langMap = {
-                'sv': 'sv-SE',
-                'en': 'en-US',
-                'fa': 'fa-IR',
-                'ku': 'ar-SA'
+                'sv': ['sv-SE', 'sv-FI'],
+                'en': ['en-US', 'en-GB', 'en-AU']
             };
             
-            let targetLang = langMap[currentLang] || currentLang;
-            let matchingVoiceIndex = voices.findIndex(v => v.lang === targetLang);
+            let targetLangs = langMap[currentLang] || [currentLang];
+            let matchingVoiceIndex = -1;
             
-            if (matchingVoiceIndex === -1) {
-                matchingVoiceIndex = voices.findIndex(v => v.lang.startsWith(currentLang));
-            }
-            
-            if (matchingVoiceIndex === -1) {
-                matchingVoiceIndex = voices.findIndex(v => v.lang.startsWith(targetLang.split('-')[0]));
+            // För svenska, prioritera Alva, Klara, Oskar
+            if (currentLang === 'sv') {
+                const preferredNames = ['Alva', 'Klara', 'Oskar'];
+                
+                for (let name of preferredNames) {
+                    matchingVoiceIndex = voices.findIndex(v => 
+                        v.name.includes(name) && v.lang.startsWith('sv'));
+                    if (matchingVoiceIndex !== -1) break;
+                }
+                
+                if (matchingVoiceIndex === -1) {
+                    matchingVoiceIndex = voices.findIndex(v => v.lang.startsWith('sv'));
+                }
+            } else {
+                for (let lang of targetLangs) {
+                    matchingVoiceIndex = voices.findIndex(v => v.lang === lang);
+                    if (matchingVoiceIndex !== -1) break;
+                }
+                
+                if (matchingVoiceIndex === -1) {
+                    matchingVoiceIndex = voices.findIndex(v => 
+                        v.lang.startsWith(currentLang));
+                }
             }
             
             if (matchingVoiceIndex !== -1) {
                 voiceSelect.value = matchingVoiceIndex;
+                console.log('Vald röst för', currentLang + ':', voices[matchingVoiceIndex].name);
             }
         }
 
@@ -818,35 +691,18 @@
 
         // Ladda röster
         function loadVoices() {
-            // Ladda röster när de är tillgängliga
             const loadVoicesWhenAvailable = () => {
                 const voices = speechSynthesis.getVoices();
-                console.log('Röster laddade:', voices.length);
                 if (voices.length > 0) {
-                    console.log('Första rösten:', voices[0].name, voices[0].lang);
                     populateVoiceSelect();
                 }
             };
             
-            // Vissa webbläsare laddar röster asynkront
             if (speechSynthesis.onvoiceschanged !== undefined) {
                 speechSynthesis.onvoiceschanged = loadVoicesWhenAvailable;
             }
             
-            // Försök också ladda direkt
             loadVoicesWhenAvailable();
-        }
-
-        // Test-funktion för felsökning
-        function testSpeech() {
-            const testUtterance = new SpeechSynthesisUtterance('Hej detta är ett test');
-            testUtterance.lang = 'sv-SE';
-            
-            testUtterance.onstart = () => console.log('TEST: Uppspelning startad');
-            testUtterance.onend = () => console.log('TEST: Uppspelning klar');
-            testUtterance.onerror = (e) => console.log('TEST: Fel', e);
-            
-            speechSynthesis.speak(testUtterance);
         }
 
         // Visa status
@@ -865,23 +721,15 @@
                 return;
             }
 
-            // Stoppa eventuell pågående uppspelning
             speechSynthesis.cancel();
+            showStatus('🔊 Genererar tal...', 'generating');
             
-            // Visa laddningsstatus
-            showStatus('<div class="spinner"></div> Genererar tal...', 'generating');
-            
-            // Vänta lite för att säkerställa att röster är laddade
             setTimeout(() => {
-                // Skapa utterance
                 currentUtterance = new SpeechSynthesisUtterance(text);
                 
-                // Språkinställning
                 const langMap = {
                     'sv': 'sv-SE',
-                    'en': 'en-US',
-                    'fa': 'fa-IR',
-                    'ku': 'ar-SA' // Fallback till arabiska för kurdiska
+                    'en': 'en-US'
                 };
                 
                 currentUtterance.lang = langMap[currentLang];
@@ -889,32 +737,21 @@
                 currentUtterance.pitch = parseFloat(document.getElementById('pitchSlider').value);
                 currentUtterance.volume = 1.0;
                 
-                // Hämta vald röst från dropdown
                 const voiceSelect = document.getElementById('voiceSelect');
                 const selectedVoiceIndex = parseInt(voiceSelect.value);
                 const voices = speechSynthesis.getVoices();
                 
-                console.log('Tillgängliga röster:', voices.length);
-                console.log('Vald röst index:', selectedVoiceIndex);
-                
                 if (!isNaN(selectedVoiceIndex) && voices[selectedVoiceIndex]) {
                     currentUtterance.voice = voices[selectedVoiceIndex];
-                    console.log('Använder vald röst:', voices[selectedVoiceIndex].name, voices[selectedVoiceIndex].lang);
-                } else {
-                    console.log('Ingen röst vald, använder standard');
                 }
                 
-                // Event handlers
                 currentUtterance.onstart = function() {
-                    console.log('Uppspelning startad');
                     showStatus('🔊 Spelar upp...', 'playing');
                     updateButtonStates('playing');
-                    document.getElementById('audioVisualizer').classList.add('show');
                     isPaused = false;
                 };
                 
                 currentUtterance.onend = function() {
-                    console.log('Uppspelning klar');
                     showStatus('✅ Uppspelning klar!', 'stopped');
                     updateButtonStates('stopped');
                     isPaused = false;
@@ -929,37 +766,7 @@
                     updateButtonStates('stopped');
                 };
                 
-                currentUtterance.onpause = function() {
-                    console.log('Uppspelning pausad');
-                };
-                
-                currentUtterance.onresume = function() {
-                    console.log('Uppspelning återupptagen');
-                };
-                
-                // Debug: Kontrollera om tal faktiskt spelas
-                console.log('Text att läsa:', text);
-                console.log('Språk:', currentUtterance.lang);
-                console.log('Hastighet:', currentUtterance.rate);
-                console.log('Tonhöjd:', currentUtterance.pitch);
-                
-                // Spela upp
-                try {
-                    speechSynthesis.speak(currentUtterance);
-                    console.log('speak() anropad');
-                    
-                    // Kontrollera om det faktiskt spelar efter en kort stund
-                    setTimeout(() => {
-                        if (!speechSynthesis.speaking && !speechSynthesis.pending) {
-                            showStatus('⚠️ Uppspelningen startade inte. Försök igen eller prova en annan webbläsare.', 'error');
-                            updateButtonStates('stopped');
-                        }
-                    }, 500);
-                } catch (error) {
-                    console.error('Fel vid speak():', error);
-                    showStatus('❌ Kunde inte starta uppspelning: ' + error.message, 'error');
-                    updateButtonStates('stopped');
-                }
+                speechSynthesis.speak(currentUtterance);
             }, 100);
         }
 
@@ -970,9 +777,6 @@
                 showStatus('🔊 Spelar upp...', 'playing');
                 updateButtonStates('playing');
                 isPaused = false;
-            } else if (currentUtterance) {
-                speechSynthesis.cancel();
-                speechSynthesis.speak(currentUtterance);
             }
         }
 
@@ -1012,159 +816,3 @@
                     generateBtn.disabled = true;
                     playBtn.disabled = false;
                     pauseBtn.disabled = true;
-                    stopBtn.disabled = false;
-                    break;
-                case 'stopped':
-                    generateBtn.disabled = false;
-                    playBtn.disabled = true;
-                    pauseBtn.disabled = true;
-                    stopBtn.disabled = true;
-                    break;
-            }
-        }
-
-        // === INSPELNINGSFUNKTIONER ===
-
-        // Starta/stoppa inspelning
-        async function toggleRecording() {
-            if (!mediaRecorder || mediaRecorder.state === 'inactive') {
-                await startRecording();
-            } else {
-                stopRecording();
-            }
-        }
-
-        // Starta inspelning
-        async function startRecording() {
-            try {
-                // Be om mikrofontillgång
-                recordingStream = await navigator.mediaDevices.getUserMedia({ 
-                    audio: {
-                        echoCancellation: true,
-                        noiseSuppression: true,
-                        autoGainControl: true
-                    } 
-                });
-
-                // Skapa MediaRecorder
-                mediaRecorder = new MediaRecorder(recordingStream);
-                audioChunks = [];
-
-                mediaRecorder.ondataavailable = (event) => {
-                    if (event.data.size > 0) {
-                        audioChunks.push(event.data);
-                    }
-                };
-
-                mediaRecorder.onstop = () => {
-                    // Skapa blob från chunks
-                    recordedBlob = new Blob(audioChunks, { type: 'audio/wav' });
-                    const audioUrl = URL.createObjectURL(recordedBlob);
-                    
-                    // Visa inspelningen
-                    const recordedAudio = document.getElementById('recordedAudio');
-                    recordedAudio.src = audioUrl;
-                    document.getElementById('recordedAudioSection').style.display = 'block';
-                    
-                    // Stoppa timern
-                    clearInterval(recordingTimer);
-                    
-                    // Stoppa stream
-                    recordingStream.getTracks().forEach(track => track.stop());
-                };
-
-                // Starta inspelning
-                mediaRecorder.start();
-                recordingStartTime = Date.now();
-
-                // Uppdatera UI
-                document.getElementById('recordingSection').classList.add('show');
-                const recordBtn = document.getElementById('recordToggleBtn');
-                recordBtn.classList.add('recording');
-                recordBtn.innerHTML = '⏹️ Stoppa inspelning';
-                
-                // Starta timer
-                startRecordingTimer();
-                
-                showStatus('🎙️ Inspelning startad - Tala in din röst!', 'playing');
-
-            } catch (error) {
-                console.error('Mikrofonfel:', error);
-                showStatus('❌ Kunde inte få tillgång till mikrofonen', 'error');
-            }
-        }
-
-        // Stoppa inspelning
-        function stopRecording() {
-            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
-                mediaRecorder.stop();
-                
-                // Uppdatera UI
-                const recordBtn = document.getElementById('recordToggleBtn');
-                recordBtn.classList.remove('recording');
-                recordBtn.innerHTML = '🎙️ Spela in din röst';
-                
-                showStatus('✅ Inspelning sparad!', 'success');
-                
-                setTimeout(() => {
-                    document.getElementById('status').classList.remove('show');
-                }, 3000);
-            }
-        }
-
-        // Timer för inspelning
-        function startRecordingTimer() {
-            const timerDisplay = document.getElementById('recordingTimer');
-            
-            recordingTimer = setInterval(() => {
-                const elapsed = Date.now() - recordingStartTime;
-                const seconds = Math.floor(elapsed / 1000);
-                const minutes = Math.floor(seconds / 60);
-                const displaySeconds = seconds % 60;
-                
-                timerDisplay.textContent = 
-                    `${String(minutes).padStart(2, '0')}:${String(displaySeconds).padStart(2, '0')}`;
-            }, 100);
-        }
-
-        // Spara inspelning
-        function saveRecording() {
-            if (!recordedBlob) {
-                showStatus('❌ Ingen inspelning att spara', 'error');
-                return;
-            }
-
-            // Skapa nedladdningslänk
-            const url = URL.createObjectURL(recordedBlob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `rostinspelning-${currentLang}-${Date.now()}.wav`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-
-            showStatus('💾 Inspelning sparad!', 'success');
-            
-            setTimeout(() => {
-                document.getElementById('status').classList.remove('show');
-            }, 3000);
-        }
-
-        // Ta bort inspelning
-        function deleteRecording() {
-            recordedBlob = null;
-            document.getElementById('recordedAudio').src = '';
-            document.getElementById('recordedAudioSection').style.display = 'none';
-            document.getElementById('recordingSection').classList.remove('show');
-            document.getElementById('recordingTimer').textContent = '00:00';
-            
-            showStatus('🗑️ Inspelning borttagen', 'stopped');
-            
-            setTimeout(() => {
-                document.getElementById('status').classList.remove('show');
-            }, 2000);
-        }
-    </script>
-</body>
-</html>
