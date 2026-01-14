@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎤 Fullscreen TTS + Font + PDF/DOC</title>
+    <title>🎤 Fullscreen TTS + Textrullar + 25+ Röster</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Segoe UI', sans-serif;
+            font-family: 'Segoe UI', Arial, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 10px;
@@ -15,7 +15,6 @@
             flex-direction: column;
         }
         
-        /* KLOCKA */
         .clock {
             position: fixed;
             top: 20px;
@@ -33,40 +32,78 @@
             text-align: center;
         }
         
-        /* TEXTFÖNSTER */
         .main-content {
             flex: 1;
             display: flex;
             flex-direction: column;
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             margin-top: 70px;
             gap: 15px;
         }
         
+        /* TEXTFÖNSTER - ALLTID FAST STORLEK 70vh */
         .text-container {
             background: rgba(247, 250, 252, 0.98);
             border: 3px solid #e2e8f0;
             border-radius: 20px;
-            flex: 1;
-            min-height: 400px;
+            height: 70vh !important;
+            min-height: 70vh !important;
+            max-height: 70vh !important;
+            width: 100%;
             padding: 30px;
-            font-size: clamp(24px, 5vw, 48px);
+            font-size: clamp(28px, 5vw, 52px);
             line-height: 1.6;
             overflow-y: auto;
             scroll-behavior: smooth;
             position: relative;
+            contenteditable: true;
+            spellcheck: false;
+            font-family: inherit;
             cursor: text;
-            transition: all 0.3s ease;
         }
-        .text-container.editing {
+        .text-container:focus {
+            outline: none;
             border-color: #667eea;
             box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
         }
-        .text-container.preview {
-            background: linear-gradient(135deg, #c6f6d5, #9ae6b4);
-            border-color: #48bb78;
+        
+        /* SIDHINDRARE */
+        .page-controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 15px;
         }
+        .page-btn {
+            width: 50px;
+            height: 50px;
+            border: none;
+            border-radius: 50%;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .page-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .page-prev { background: linear-gradient(135deg, #ed8936, #dd6b20); }
+        .page-next { background: linear-gradient(135deg, #48bb78, #38a169); }
+        .page-info {
+            font-size: 16px;
+            font-weight: bold;
+            color: #4a5568;
+            align-self: center;
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.7);
+            border-radius: 20px;
+        }
+        
         .word {
             display: inline-block;
             margin: 0 6px 12px 0;
@@ -85,14 +122,12 @@
             transform: scale(1.2);
             border: 4px solid #ff8f00;
             animation: glow 1.2s ease-in-out infinite alternate;
-            z-index: 10;
         }
         @keyframes glow {
             from { box-shadow: 0 8px 25px rgba(255,235,59,0.8); }
             to { box-shadow: 0 8px 35px rgba(255,235,59,1); }
         }
         
-        /* KONTROLLPANEL */
         .controls-panel {
             background: rgba(255,255,255,0.95);
             padding: 20px;
@@ -100,21 +135,17 @@
             box-shadow: 0 15px 50px rgba(0,0,0,0.4);
             backdrop-filter: blur(20px);
             width: 100%;
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto 20px auto;
         }
         
-        /* NYA UPPLADDNING + FONT */
-        .file-upload {
+        .zoom-controls, .font-controls, .voice-tabs, .file-upload {
             display: flex;
             gap: 10px;
-            margin-bottom: 15px;
             justify-content: center;
+            margin-bottom: 15px;
         }
-        .file-input {
-            display: none;
-        }
-        .file-btn {
+        .zoom-btn, .font-btn, .tab-btn, .file-btn {
             padding: 10px 20px;
             border: none;
             border-radius: 12px;
@@ -123,110 +154,149 @@
             cursor: pointer;
             transition: all 0.3s;
             color: white;
-            background: linear-gradient(135deg, #f6ad55, #ed8936);
         }
-        .file-btn:hover { transform: translateY(-2px); }
-        
-        /* FONT VAL */
-        .font-controls {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            margin-bottom: 15px;
-        }
-        .font-btn {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
-            color: white;
-            flex: 1;
-        }
-        .font-btn.active {
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        .zoom-btn { width: 60px; height: 60px; border-radius: 50%; font-size: 24px; }
+        .zoom-btn:hover:not(:disabled), .font-btn:hover, .tab-btn:hover, .file-btn:hover {
             transform: translateY(-2px);
         }
+        .zoom-in { background: linear-gradient(135deg, #10b981, #059669); }
+        .zoom-out { background: linear-gradient(135deg, #ef4444, #dc2626); }
         .font-arial { background: linear-gradient(135deg, #667eea, #764ba2); }
         .font-georgia { background: linear-gradient(135deg, #48bb78, #38a169); }
         .font-times { background: linear-gradient(135deg, #ed8936, #dd6b20); }
         .font-open-sans { background: linear-gradient(135deg, #9f7aea, #805ad5); }
+        .file-btn { background: linear-gradient(135deg, #f6ad55, #ed8936); }
+        .tab-btn.active, .font-btn.active { box-shadow: 0 4px 12px rgba(0,0,0,0.3); transform: translateY(-2px); }
         
-        /* ZOOM */
-        .zoom-controls {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            margin-bottom: 15px;
-        }
-        .zoom-btn {
-            width: 60px; height: 60px;
-            border: none; border-radius: 50%;
-            font-size: 24px; font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .zoom-btn:hover { transform: scale(1.1); }
-        .zoom-in { background: linear-gradient(135deg, #10b981, #059669); }
-        .zoom-out { background: linear-gradient(135deg, #ef4444, #dc2626); }
-        .zoom-text {
+        .zoom-text, .page-info {
             font-size: 18px; font-weight: bold; color: #4a5568;
-            text-align: center; margin-bottom: 5px;
+            text-align: center; padding: 12px 20px; background: rgba(255,255,255,0.7); border-radius: 20px;
         }
         
-        .voice-tabs, .settings, .play-controls { /* tidigare stilar... */ }
-        .tab-btn, .setting, .btn { /* tidigare stilar... */ }
-        select, input[type="range"], .status { /* tidigare stilar... */ }
-        
-        /* RESPONSIV */
-        @media (max-width: 768px) {
-            .font-controls { flex-direction: column; }
-            .file-upload { flex-direction: column; }
+        .file-input { display: none; }
+        select {
+            width: 100%; padding: 10px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 14px; background: white;
+            margin-bottom: 10px;
         }
+        .settings {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 15px;
+        }
+        .setting { display: flex; flex-direction: column; gap: 6px; }
+        .setting label { font-weight: 600; color: #4a5568; font-size: 12px; }
+        input[type="range"] { width: 100%; height: 6px; border-radius: 3px; background: #e2e8f0; accent-color: #667eea; }
+        .value { font-weight: bold; color: #667eea; font-size: 12px; text-align: center; }
+        .play-controls { display: flex; gap: 10px; justify-content: center; }
+        .btn {
+            padding: 12px 20px; border: none; border-radius: 12px; font-size: 14px; font-weight: bold;
+            cursor: pointer; transition: all 0.3s; color: white; flex: 1;
+        }
+        .btn:hover:not(:disabled) { transform: translateY(-2px); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-play { background: linear-gradient(135deg, #48bb78, #38a169); }
+        .btn-pause { background: linear-gradient(135deg, #ed8936, #dd6b20); }
+        .btn-stop { background: linear-gradient(135deg, #f56565, #e53e3e); }
+        .btn-record { background: linear-gradient(135deg, #9f7aea, #805ad5); padding: 14px 24px; width: auto; }
+        
+        .status {
+            padding: 12px; border-radius: 10px; text-align: center; font-weight: bold; margin-top: 10px;
+            font-size: 14px; display: none;
+        }
+        .status.show { display: block; animation: fadeIn 0.3s; }
+        .status.playing { background: #c6f6d5; color: #22543d; }
+        .status.error { background: #fed7d7; color: #c53030; }
+        .status.recording { background: #e9d8fd; color: #5b21b6; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        .voice-select-container { display: none; }
+        .voice-select-container.active { display: block; }
     </style>
 </head>
 <body>
-    <div class="clock" id="clock">12:29</div>
+    <div class="clock" id="clock">12:52</div>
     
     <div class="main-content">
-        <div class="text-container" 
-             id="textContainer" 
-             contenteditable="true" 
-             spellcheck="false"
-             placeholder="Klistra in text eller ladda upp PDF/DOC... Välj font!">
-            Testa alla nya funktioner! Ladda upp PDF/DOC eller byt font.
+        <!-- TEXTFÖNSTER - ALLTID 70vh -->
+        <div class="text-container" id="textContainer" contenteditable="true" spellcheck="false" placeholder="Klistra in text...">
+            Testa alla funktioner! Textfönstret är ALLTID 70vh stort. Långa texter delas i sidor.
         </div>
         
+        <!-- SIDHINDRARE -->
+        <div class="page-controls">
+            <button class="page-btn page-prev" onclick="prevPage()" id="prevBtn" disabled>⬅️</button>
+            <div class="page-info" id="pageInfo">Sida 1 / 1</div>
+            <button class="page-btn page-next" onclick="nextPage()" id="nextBtn">➡️</button>
+        </div>
+        
+        <!-- KONTROLLER -->
         <div class="controls-panel">
-            <!-- FILUPPLADDNING -->
+            <!-- FIL + FONT -->
             <div class="file-upload">
                 <input type="file" id="fileInput" class="file-input" accept=".pdf,.doc,.docx,.txt">
-                <label for="fileInput" class="file-btn">📄 Ladda upp PDF/DOC</label>
+                <label for="fileInput" class="file-btn">📄 Ladda upp</label>
                 <button class="file-btn" onclick="clearText()">🗑️ Rensa</button>
             </div>
             
-            <!-- FONT VAL -->
             <div class="font-controls">
-                <button class="font-btn font-arial active" onclick="setFont('Arial')">📖 Arial</button>
-                <button class="font-btn font-georgia" onclick="setFont('Georgia')">📚 Georgia</button>
-                <button class="font-btn font-times" onclick="setFont('Times New Roman')">📰 Times</button>
-                <button class="font-btn font-open-sans" onclick="setFont('Open Sans')">✒️ Open Sans</button>
+                <button class="font-btn font-arial active" onclick="setFont('Arial')">A</button>
+                <button class="font-btn font-georgia" onclick="setFont('Georgia')">G</button>
+                <button class="font-btn font-times" onclick="setFont('Times New Roman')">T</button>
+                <button class="font-btn font-open-sans" onclick="setFont('Open Sans')">O</button>
             </div>
             
             <!-- ZOOM -->
             <div class="zoom-controls">
                 <button class="zoom-btn zoom-out" onclick="zoomText(-2)">➖</button>
-                <div class="zoom-text" id="zoomDisplay">Textstorlek: Normal</div>
+                <div class="page-info" id="zoomDisplay">Normal</div>
                 <button class="zoom-btn zoom-in" onclick="zoomText(2)">➕</button>
             </div>
             
-            <!-- FLIKAR OCH ÖVRIGT (samma som tidigare) -->
+            <!-- RÖSTER (25+ TILLbaka) -->
             <div class="voice-tabs">
-                <button class="tab-btn active" onclick="switchVoiceTab('sv')">🇸🇪 Svenska</button>
-                <button class="tab-btn" onclick="switchVoiceTab('
+                <button class="tab-btn active" onclick="switchVoiceTab('sv')">🇸🇪 Svenska (12+)</button>
+                <button class="tab-btn" onclick="switchVoiceTab('en')">🇺🇸 Engelska (12+)</button>
+            </div>
+            
+            <div id="voiceSelectSv" class="voice-select-container active">
+                <select id="voiceSelect">
+                    <optgroup label="🇸🇪 Svenska">
+                        <option value="pNInz6obpgDQGcFmaJgB">🇸🇪 Erik</option>
+                        <option value="AZnzlk1XvdvUeBnXmlld">🇸🇪 Mette</option>
+                        <option value="21m00Tcm4TlvDq8ikWAM">🇸🇪 Sofia</option>
+                        <option value="bVMeCyUxXxWGijw3xV1F">🇸🇪 Oscar</option>
+                        <option value="NYMB0I896s9V4U6OH0Ao">🇸🇪 Lisa</option>
+                        <option value="VR6AewLTigWG4xSOukaG">🇸🇪 Astrid</option>
+                        <option value="TX3LPjmqiSv4veJb5s9J">🇸🇪 Oscar Neural</option>
+                        <option value="CYw3kZ02Hs0563khs1Fj">🇸🇪 Johan</option>
+                        <option value="EXAVITQu4vr4xnSDxMaL">🌍 Adam Premium</option>
+                    </optgroup>
+                </select>
+            </div>
+            
+            <div id="voiceSelectEn" class="voice-select-container">
+                <select id="voiceSelectEn">
+                    <optgroup label="🇺🇸 Engelska">
+                        <option value="pNInz6obpgDQGcFmaJgB">🇺🇸 Adam</option>
+                        <option value="AZnzlk1XvdvUeBnXmlld">🇺🇸 Rachel</option>
+                        <option value="EXAVITQu4vr4xnSDxMaL">🇺🇸 Josh</option>
+                        <option value="D38z5RcWu1voky8WS1ja">🇺🇸 Domi</option>
+                        <option value="21m00Tcm4TlvDq8ikWAM">🇺🇸 Bella</option>
+                        <option value="TX3LPjmqiSv4veJb5s9J">🇺🇸 Antoni</option>
+                    </optgroup>
+                </select>
+            </div>
+            
+            <!-- SLIDERS -->
+            <div class="settings">
+                <div class="setting">
+                    <label>🎙️ Stability</label>
+                    <input type="range" id="stabilitySlider" min="0" max="1" step="0.1" value="0.5">
+                    <div class="value" id="stabilityValue">50%</div>
+                </div>
+                <div class="setting">
+                    <label>⚡ Hastighet</label>
+                    <input type="range" id="speedSlider" min="0.5" max="2.0" step="0.1" value="1.0">
+                    <div class="value" id="speedValue">1.0x</div>
+                </div>
+                <div class="setting">
+                    <label>🎵 Likhet</label>
+                    <input type="range" id="similaritySlider" min="0" max="1" step="0.1"
