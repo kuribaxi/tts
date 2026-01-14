@@ -95,49 +95,18 @@
             margin: 30px 0;
         }
 
-        .voice-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
+        select {
+            transition: border-color 0.3s;
         }
 
-        .voice-card {
-            padding: 15px;
-            border: 3px solid #e2e8f0;
-            border-radius: 12px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
-            background: white;
-        }
-
-        .voice-card:hover {
+        select:hover {
             border-color: #667eea;
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
         }
 
-        .voice-card.selected {
+        select:focus {
+            outline: none;
             border-color: #667eea;
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-        }
-
-        .voice-icon {
-            font-size: 2em;
-            margin-bottom: 8px;
-        }
-
-        .voice-name {
-            font-weight: bold;
-            color: #2d3748;
-            margin-bottom: 4px;
-        }
-
-        .voice-description {
-            font-size: 0.85em;
-            color: #718096;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
         .text-input-section {
@@ -537,9 +506,12 @@
             <h3 style="color: #2d3748; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
                 🎤 Välj röst:
             </h3>
-            <div class="voice-grid" id="voiceGrid">
-                <!-- Röster läggs till via JavaScript -->
-            </div>
+            <select id="voiceSelect" style="width: 100%; padding: 15px; border: 3px solid #e2e8f0; border-radius: 12px; font-size: 16px; cursor: pointer; background: white;">
+                <option value="">Laddar röster...</option>
+            </select>
+            <p style="margin-top: 10px; color: #718096; font-size: 0.9em;">
+                💡 Välj en röst från listan ovan för bästa resultat
+            </p>
         </div>
 
         <!-- Textinmatning -->
@@ -660,39 +632,11 @@
             ku: 'دەقەکەت بنووسە...'
         };
 
-        // Röst-konfiguration
-        const voiceConfig = {
-            sv: [
-                { name: 'Anna', gender: 'female', icon: '👩', desc: 'Svensk kvinna' },
-                { name: 'Erik', gender: 'male', icon: '👨', desc: 'Svensk man' },
-                { name: 'Lisa', gender: 'female', icon: '👩‍🦰', desc: 'Svensk kvinna' },
-                { name: 'Gustav', gender: 'male', icon: '👨‍💼', desc: 'Svensk man' }
-            ],
-            en: [
-                { name: 'Sarah', gender: 'female', icon: '👩', desc: 'American' },
-                { name: 'James', gender: 'male', icon: '👨', desc: 'British' },
-                { name: 'Emily', gender: 'female', icon: '👩‍🦰', desc: 'Australian' },
-                { name: 'Michael', gender: 'male', icon: '👨‍💼', desc: 'American' }
-            ],
-            fa: [
-                { name: 'فاطمه', gender: 'female', icon: '👩', desc: 'زن ایرانی' },
-                { name: 'علی', gender: 'male', icon: '👨', desc: 'مرد ایرانی' },
-                { name: 'مریم', gender: 'female', icon: '👩‍🦰', desc: 'زن ایرانی' },
-                { name: 'رضا', gender: 'male', icon: '👨‍💼', desc: 'مرد ایرانی' }
-            ],
-            ku: [
-                { name: 'ئاوات', gender: 'female', icon: '👩', desc: 'ژنێکی کورد' },
-                { name: 'ئارام', gender: 'male', icon: '👨', desc: 'پیاوێکی کورد' },
-                { name: 'دلنیا', gender: 'female', icon: '👩‍🦰', desc: 'ژنێکی کورد' },
-                { name: 'شێرکۆ', gender: 'male', icon: '👨‍💼', desc: 'پیاوێکی کورد' }
-            ]
-        };
-
         let currentLang = 'sv';
         let currentDirection = 'ltr';
         let currentUtterance = null;
         let isPaused = false;
-        let selectedVoice = null;
+        let availableVoices = [];
 
         // Inspelningsvariabler
         let mediaRecorder = null;
@@ -707,7 +651,6 @@
             setupLanguageSelector();
             setupSliders();
             updateExamples();
-            updateVoices();
             loadVoices();
         });
 
@@ -722,7 +665,7 @@
                     currentDirection = this.dataset.dir;
                     updateTextDirection();
                     updateExamples();
-                    updateVoices();
+                    filterVoicesByLanguage();
                 });
             });
         }
@@ -755,37 +698,108 @@
             });
         }
 
-        // Uppdatera röster
-        function updateVoices() {
-            const voiceGrid = document.getElementById('voiceGrid');
-            voiceGrid.innerHTML = '';
+        // Populera röstväljare med alla systemröster
+        function populateVoiceSelect() {
+            const voiceSelect = document.getElementById('voiceSelect');
+            const voices = speechSynthesis.getVoices();
             
-            const voices = voiceConfig[currentLang];
+            availableVoices = voices;
+            
+            // Rensa gamla alternativ
+            voiceSelect.innerHTML = '';
+            
+            if (voices.length === 0) {
+                voiceSelect.innerHTML = '<option value="">Inga röster tillgängliga</option>';
+                return;
+            }
+            
+            // Gruppera röster efter språk
+            const languageGroups = {};
             
             voices.forEach((voice, index) => {
-                const voiceCard = document.createElement('div');
-                voiceCard.className = 'voice-card';
-                if (index === 0) {
-                    voiceCard.classList.add('selected');
-                    selectedVoice = voice;
+                const langCode = voice.lang.split('-')[0];
+                if (!languageGroups[langCode]) {
+                    languageGroups[langCode] = [];
                 }
+                languageGroups[langCode].push({voice, index});
+            });
+            
+            // Skapa options grupperade efter språk
+            const langNames = {
+                'sv': '🇸🇪 Svenska',
+                'en': '🇬🇧 English',
+                'ar': '🇸🇦 العربية (Arabiska)',
+                'fa': '🇮🇷 فارسی',
+                'de': '🇩🇪 Deutsch',
+                'es': '🇪🇸 Español',
+                'fr': '🇫🇷 Français',
+                'it': '🇮🇹 Italiano',
+                'ja': '🇯🇵 日本語',
+                'zh': '🇨🇳 中文',
+                'ru': '🇷🇺 Русский',
+                'pt': '🇵🇹 Português'
+            };
+            
+            // Sortera språk så nuvarande språk kommer först
+            const sortedLangs = Object.keys(languageGroups).sort((a, b) => {
+                if (a === currentLang) return -1;
+                if (b === currentLang) return 1;
+                return a.localeCompare(b);
+            });
+            
+            sortedLangs.forEach(langCode => {
+                const groupName = langNames[langCode] || `${langCode.toUpperCase()}`;
+                const optgroup = document.createElement('optgroup');
+                optgroup.label = groupName;
                 
-                voiceCard.innerHTML = `
-                    <div class="voice-icon">${voice.icon}</div>
-                    <div class="voice-name">${voice.name}</div>
-                    <div class="voice-description">${voice.desc}</div>
-                `;
-                
-                voiceCard.addEventListener('click', function() {
-                    document.querySelectorAll('.voice-card').forEach(c => 
-                        c.classList.remove('selected')
-                    );
-                    this.classList.add('selected');
-                    selectedVoice = voice;
+                languageGroups[langCode].forEach(({voice, index}) => {
+                    const option = document.createElement('option');
+                    option.value = index;
+                    option.textContent = `${voice.name} (${voice.lang})`;
+                    if (voice.localService) {
+                        option.textContent += ' 🖥️';
+                    }
+                    optgroup.appendChild(option);
                 });
                 
-                voiceGrid.appendChild(voiceCard);
+                voiceSelect.appendChild(optgroup);
             });
+            
+            // Välj första rösten för nuvarande språk
+            filterVoicesByLanguage();
+            
+            console.log('Röster laddade i select:', voices.length);
+        }
+        
+        // Filtrera och välj röster baserat på valt språk
+        function filterVoicesByLanguage() {
+            const voiceSelect = document.getElementById('voiceSelect');
+            const voices = speechSynthesis.getVoices();
+            
+            if (voices.length === 0) return;
+            
+            // Hitta första matchande rösten för nuvarande språk
+            const langMap = {
+                'sv': 'sv-SE',
+                'en': 'en-US',
+                'fa': 'fa-IR',
+                'ku': 'ar-SA'
+            };
+            
+            let targetLang = langMap[currentLang] || currentLang;
+            let matchingVoiceIndex = voices.findIndex(v => v.lang === targetLang);
+            
+            if (matchingVoiceIndex === -1) {
+                matchingVoiceIndex = voices.findIndex(v => v.lang.startsWith(currentLang));
+            }
+            
+            if (matchingVoiceIndex === -1) {
+                matchingVoiceIndex = voices.findIndex(v => v.lang.startsWith(targetLang.split('-')[0]));
+            }
+            
+            if (matchingVoiceIndex !== -1) {
+                voiceSelect.value = matchingVoiceIndex;
+            }
         }
 
         // Slider-kontroller
@@ -804,11 +818,35 @@
 
         // Ladda röster
         function loadVoices() {
+            // Ladda röster när de är tillgängliga
+            const loadVoicesWhenAvailable = () => {
+                const voices = speechSynthesis.getVoices();
+                console.log('Röster laddade:', voices.length);
+                if (voices.length > 0) {
+                    console.log('Första rösten:', voices[0].name, voices[0].lang);
+                    populateVoiceSelect();
+                }
+            };
+            
+            // Vissa webbläsare laddar röster asynkront
             if (speechSynthesis.onvoiceschanged !== undefined) {
-                speechSynthesis.onvoiceschanged = () => {
-                    speechSynthesis.getVoices();
-                };
+                speechSynthesis.onvoiceschanged = loadVoicesWhenAvailable;
             }
+            
+            // Försök också ladda direkt
+            loadVoicesWhenAvailable();
+        }
+
+        // Test-funktion för felsökning
+        function testSpeech() {
+            const testUtterance = new SpeechSynthesisUtterance('Hej detta är ett test');
+            testUtterance.lang = 'sv-SE';
+            
+            testUtterance.onstart = () => console.log('TEST: Uppspelning startad');
+            testUtterance.onend = () => console.log('TEST: Uppspelning klar');
+            testUtterance.onerror = (e) => console.log('TEST: Fel', e);
+            
+            speechSynthesis.speak(testUtterance);
         }
 
         // Visa status
@@ -830,53 +868,99 @@
             // Stoppa eventuell pågående uppspelning
             speechSynthesis.cancel();
             
+            // Visa laddningsstatus
             showStatus('<div class="spinner"></div> Genererar tal...', 'generating');
             
-            // Skapa utterance
-            currentUtterance = new SpeechSynthesisUtterance(text);
-            
-            // Språkinställning
-            const langMap = {
-                'sv': 'sv-SE',
-                'en': 'en-US',
-                'fa': 'fa-IR',
-                'ku': 'ar-SA' // Fallback till arabiska för kurdiska
-            };
-            
-            currentUtterance.lang = langMap[currentLang];
-            currentUtterance.rate = parseFloat(document.getElementById('speedSlider').value);
-            currentUtterance.pitch = parseFloat(document.getElementById('pitchSlider').value);
-            
-            // Hitta matchande röst
-            const voices = speechSynthesis.getVoices();
-            const voice = voices.find(v => v.lang.startsWith(currentLang) || v.lang === langMap[currentLang]);
-            if (voice) currentUtterance.voice = voice;
-            
-            // Event handlers
-            currentUtterance.onstart = function() {
-                showStatus('🔊 Spelar upp...', 'playing');
-                updateButtonStates('playing');
-                document.getElementById('audioVisualizer').classList.add('show');
-                isPaused = false;
-            };
-            
-            currentUtterance.onend = function() {
-                showStatus('✅ Uppspelning klar!', 'stopped');
-                updateButtonStates('stopped');
-                isPaused = false;
-                setTimeout(() => {
-                    document.getElementById('status').classList.remove('show');
-                }, 3000);
-            };
-            
-            currentUtterance.onerror = function(event) {
-                console.error('Speech error:', event);
-                showStatus('❌ Ett fel uppstod', 'error');
-                updateButtonStates('stopped');
-            };
-            
-            // Spela upp
-            speechSynthesis.speak(currentUtterance);
+            // Vänta lite för att säkerställa att röster är laddade
+            setTimeout(() => {
+                // Skapa utterance
+                currentUtterance = new SpeechSynthesisUtterance(text);
+                
+                // Språkinställning
+                const langMap = {
+                    'sv': 'sv-SE',
+                    'en': 'en-US',
+                    'fa': 'fa-IR',
+                    'ku': 'ar-SA' // Fallback till arabiska för kurdiska
+                };
+                
+                currentUtterance.lang = langMap[currentLang];
+                currentUtterance.rate = parseFloat(document.getElementById('speedSlider').value);
+                currentUtterance.pitch = parseFloat(document.getElementById('pitchSlider').value);
+                currentUtterance.volume = 1.0;
+                
+                // Hämta vald röst från dropdown
+                const voiceSelect = document.getElementById('voiceSelect');
+                const selectedVoiceIndex = parseInt(voiceSelect.value);
+                const voices = speechSynthesis.getVoices();
+                
+                console.log('Tillgängliga röster:', voices.length);
+                console.log('Vald röst index:', selectedVoiceIndex);
+                
+                if (!isNaN(selectedVoiceIndex) && voices[selectedVoiceIndex]) {
+                    currentUtterance.voice = voices[selectedVoiceIndex];
+                    console.log('Använder vald röst:', voices[selectedVoiceIndex].name, voices[selectedVoiceIndex].lang);
+                } else {
+                    console.log('Ingen röst vald, använder standard');
+                }
+                
+                // Event handlers
+                currentUtterance.onstart = function() {
+                    console.log('Uppspelning startad');
+                    showStatus('🔊 Spelar upp...', 'playing');
+                    updateButtonStates('playing');
+                    document.getElementById('audioVisualizer').classList.add('show');
+                    isPaused = false;
+                };
+                
+                currentUtterance.onend = function() {
+                    console.log('Uppspelning klar');
+                    showStatus('✅ Uppspelning klar!', 'stopped');
+                    updateButtonStates('stopped');
+                    isPaused = false;
+                    setTimeout(() => {
+                        document.getElementById('status').classList.remove('show');
+                    }, 3000);
+                };
+                
+                currentUtterance.onerror = function(event) {
+                    console.error('Speech error:', event);
+                    showStatus('❌ Ett fel uppstod: ' + event.error, 'error');
+                    updateButtonStates('stopped');
+                };
+                
+                currentUtterance.onpause = function() {
+                    console.log('Uppspelning pausad');
+                };
+                
+                currentUtterance.onresume = function() {
+                    console.log('Uppspelning återupptagen');
+                };
+                
+                // Debug: Kontrollera om tal faktiskt spelas
+                console.log('Text att läsa:', text);
+                console.log('Språk:', currentUtterance.lang);
+                console.log('Hastighet:', currentUtterance.rate);
+                console.log('Tonhöjd:', currentUtterance.pitch);
+                
+                // Spela upp
+                try {
+                    speechSynthesis.speak(currentUtterance);
+                    console.log('speak() anropad');
+                    
+                    // Kontrollera om det faktiskt spelar efter en kort stund
+                    setTimeout(() => {
+                        if (!speechSynthesis.speaking && !speechSynthesis.pending) {
+                            showStatus('⚠️ Uppspelningen startade inte. Försök igen eller prova en annan webbläsare.', 'error');
+                            updateButtonStates('stopped');
+                        }
+                    }, 500);
+                } catch (error) {
+                    console.error('Fel vid speak():', error);
+                    showStatus('❌ Kunde inte starta uppspelning: ' + error.message, 'error');
+                    updateButtonStates('stopped');
+                }
+            }, 100);
         }
 
         // Spela upp
