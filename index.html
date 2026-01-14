@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Min TTS Hemsida</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+            padding: 10px;
+            border-radius: 5px;
+            border: none;
+            font-size: 16px;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        select {
+            padding: 10px;
+            border-radius: 5px;
+            border: none;
+            font-size: 16px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎤 Text-till-Tal Generator</h1>
+        <p>Skriv text nedan och välj ett språk för att generera tal</p>
+        
+        <textarea id="textInput" placeholder="Skriv din text här..."></textarea>
+        
+        <select id="languageSelect">
+            <option value="sv-SE">Svenska</option>
+            <option value="en-US">English</option>
+            <option value="de-DE">Deutsch</option>
+            <option value="es-ES">Español</option>
+            <option value="fr-FR">Français</option>
+        </select>
+        
+        <button onclick="speakText()">🔊 Läs upp text</button>
+        
+        <div id="status" style="margin-top: 20px;"></div>
+    </div>
+
+    <script>
+        function speakText() {
+            const text = document.getElementById('textInput').value;
+            const lang = document.getElementById('languageSelect').value;
+            const status = document.getElementById('status');
+            
+            if (!text) {
+                status.innerHTML = '⚠️ Vänligen skriv något först!';
+                return;
+            }
+            
+            // Använd Web Speech API (inbyggt i webbläsaren)
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = lang;
+            utterance.rate = 1.0;
+            utterance.pitch = 1.0;
+            
+            status.innerHTML = '🔊 Spelar upp...';
+            
+            utterance.onend = function() {
+                status.innerHTML = '✅ Klar!';
+            };
+            
+            utterance.onerror = function() {
+                status.innerHTML = '❌ Ett fel uppstod';
+            };
+            
+            speechSynthesis.speak(utterance);
+        }
+    </script>
+</body>
+</html>
