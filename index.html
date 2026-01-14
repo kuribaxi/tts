@@ -91,6 +91,55 @@
             color: #2d3748;
         }
 
+        .voice-section {
+            margin: 30px 0;
+        }
+
+        .voice-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .voice-card {
+            padding: 15px;
+            border: 3px solid #e2e8f0;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        .voice-card:hover {
+            border-color: #667eea;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .voice-card.selected {
+            border-color: #667eea;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .voice-icon {
+            font-size: 2em;
+            margin-bottom: 8px;
+        }
+
+        .voice-name {
+            font-weight: bold;
+            color: #2d3748;
+            margin-bottom: 4px;
+        }
+
+        .voice-description {
+            font-size: 0.85em;
+            color: #718096;
+        }
+
         .text-input-section {
             margin: 30px 0;
         }
@@ -183,6 +232,64 @@
         .btn-stop {
             background: linear-gradient(135deg, #fc8181 0%, #f56565 100%);
             color: white;
+        }
+
+        .btn-record {
+            background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
+            color: white;
+        }
+
+        .btn-record.recording {
+            background: linear-gradient(135deg, #fc8181 0%, #f56565 100%);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .recording-section {
+            margin: 20px 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #fff5f5 0%, #fed7d7 100%);
+            border-radius: 12px;
+            border: 2px solid #fc8181;
+            display: none;
+        }
+
+        .recording-section.show {
+            display: block;
+        }
+
+        .recording-section h3 {
+            color: #c53030;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .recording-timer {
+            font-size: 2em;
+            color: #e53e3e;
+            text-align: center;
+            margin: 15px 0;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+        }
+
+        .recording-controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .recorded-audio {
+            margin-top: 15px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
         }
 
         .settings {
@@ -425,6 +532,16 @@
             </div>
         </div>
 
+        <!-- Röstväljare -->
+        <div class="voice-section">
+            <h3 style="color: #2d3748; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                🎤 Välj röst:
+            </h3>
+            <div class="voice-grid" id="voiceGrid">
+                <!-- Röster läggs till via JavaScript -->
+            </div>
+        </div>
+
         <!-- Textinmatning -->
         <div class="text-input-section">
             <label for="textInput">✍️ Skriv din text här:</label>
@@ -463,6 +580,38 @@
             <button class="btn btn-stop" id="stopBtn" onclick="stopSpeech()" disabled>
                 ⏹️ Stoppa
             </button>
+        </div>
+
+        <!-- Inspelningssektion -->
+        <div style="margin-top: 20px; text-align: center;">
+            <button class="btn btn-record" id="recordToggleBtn" onclick="toggleRecording()">
+                🎙️ Spela in din röst
+            </button>
+        </div>
+
+        <div class="recording-section" id="recordingSection">
+            <h3>🎙️ Inspelning pågår</h3>
+            <div class="recording-timer" id="recordingTimer">00:00</div>
+            <p style="text-align: center; color: #718096; margin-bottom: 15px;">
+                Tala in texten du vill använda för röstkloning...
+            </p>
+            <div class="recording-controls">
+                <button class="btn btn-stop" onclick="stopRecording()" style="flex: 1;">
+                    ⏹️ Stoppa inspelning
+                </button>
+            </div>
+            <div class="recorded-audio" id="recordedAudioSection" style="display: none;">
+                <h4 style="color: #2d3748; margin-bottom: 10px;">📻 Din inspelning:</h4>
+                <audio id="recordedAudio" controls style="width: 100%;"></audio>
+                <div style="margin-top: 15px; display: flex; gap: 10px;">
+                    <button class="btn" onclick="saveRecording()" style="flex: 1; background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);">
+                        💾 Spara inspelning
+                    </button>
+                    <button class="btn" onclick="deleteRecording()" style="flex: 1; background: linear-gradient(135deg, #fc8181 0%, #f56565 100%);">
+                        🗑️ Ta bort
+                    </button>
+                </div>
+            </div>
         </div>
 
         <!-- Status -->
@@ -511,16 +660,54 @@
             ku: 'دەقەکەت بنووسە...'
         };
 
+        // Röst-konfiguration
+        const voiceConfig = {
+            sv: [
+                { name: 'Anna', gender: 'female', icon: '👩', desc: 'Svensk kvinna' },
+                { name: 'Erik', gender: 'male', icon: '👨', desc: 'Svensk man' },
+                { name: 'Lisa', gender: 'female', icon: '👩‍🦰', desc: 'Svensk kvinna' },
+                { name: 'Gustav', gender: 'male', icon: '👨‍💼', desc: 'Svensk man' }
+            ],
+            en: [
+                { name: 'Sarah', gender: 'female', icon: '👩', desc: 'American' },
+                { name: 'James', gender: 'male', icon: '👨', desc: 'British' },
+                { name: 'Emily', gender: 'female', icon: '👩‍🦰', desc: 'Australian' },
+                { name: 'Michael', gender: 'male', icon: '👨‍💼', desc: 'American' }
+            ],
+            fa: [
+                { name: 'فاطمه', gender: 'female', icon: '👩', desc: 'زن ایرانی' },
+                { name: 'علی', gender: 'male', icon: '👨', desc: 'مرد ایرانی' },
+                { name: 'مریم', gender: 'female', icon: '👩‍🦰', desc: 'زن ایرانی' },
+                { name: 'رضا', gender: 'male', icon: '👨‍💼', desc: 'مرد ایرانی' }
+            ],
+            ku: [
+                { name: 'ئاوات', gender: 'female', icon: '👩', desc: 'ژنێکی کورد' },
+                { name: 'ئارام', gender: 'male', icon: '👨', desc: 'پیاوێکی کورد' },
+                { name: 'دلنیا', gender: 'female', icon: '👩‍🦰', desc: 'ژنێکی کورد' },
+                { name: 'شێرکۆ', gender: 'male', icon: '👨‍💼', desc: 'پیاوێکی کورد' }
+            ]
+        };
+
         let currentLang = 'sv';
         let currentDirection = 'ltr';
         let currentUtterance = null;
         let isPaused = false;
+        let selectedVoice = null;
+
+        // Inspelningsvariabler
+        let mediaRecorder = null;
+        let audioChunks = [];
+        let recordingStream = null;
+        let recordingStartTime = null;
+        let recordingTimer = null;
+        let recordedBlob = null;
 
         // Initialisering
         document.addEventListener('DOMContentLoaded', function() {
             setupLanguageSelector();
             setupSliders();
             updateExamples();
+            updateVoices();
             loadVoices();
         });
 
@@ -535,6 +722,7 @@
                     currentDirection = this.dataset.dir;
                     updateTextDirection();
                     updateExamples();
+                    updateVoices();
                 });
             });
         }
@@ -564,6 +752,39 @@
                     document.getElementById('textInput').value = example;
                 };
                 exampleList.appendChild(item);
+            });
+        }
+
+        // Uppdatera röster
+        function updateVoices() {
+            const voiceGrid = document.getElementById('voiceGrid');
+            voiceGrid.innerHTML = '';
+            
+            const voices = voiceConfig[currentLang];
+            
+            voices.forEach((voice, index) => {
+                const voiceCard = document.createElement('div');
+                voiceCard.className = 'voice-card';
+                if (index === 0) {
+                    voiceCard.classList.add('selected');
+                    selectedVoice = voice;
+                }
+                
+                voiceCard.innerHTML = `
+                    <div class="voice-icon">${voice.icon}</div>
+                    <div class="voice-name">${voice.name}</div>
+                    <div class="voice-description">${voice.desc}</div>
+                `;
+                
+                voiceCard.addEventListener('click', function() {
+                    document.querySelectorAll('.voice-card').forEach(c => 
+                        c.classList.remove('selected')
+                    );
+                    this.classList.add('selected');
+                    selectedVoice = voice;
+                });
+                
+                voiceGrid.appendChild(voiceCard);
             });
         }
 
@@ -716,6 +937,149 @@
                     stopBtn.disabled = true;
                     break;
             }
+        }
+
+        // === INSPELNINGSFUNKTIONER ===
+
+        // Starta/stoppa inspelning
+        async function toggleRecording() {
+            if (!mediaRecorder || mediaRecorder.state === 'inactive') {
+                await startRecording();
+            } else {
+                stopRecording();
+            }
+        }
+
+        // Starta inspelning
+        async function startRecording() {
+            try {
+                // Be om mikrofontillgång
+                recordingStream = await navigator.mediaDevices.getUserMedia({ 
+                    audio: {
+                        echoCancellation: true,
+                        noiseSuppression: true,
+                        autoGainControl: true
+                    } 
+                });
+
+                // Skapa MediaRecorder
+                mediaRecorder = new MediaRecorder(recordingStream);
+                audioChunks = [];
+
+                mediaRecorder.ondataavailable = (event) => {
+                    if (event.data.size > 0) {
+                        audioChunks.push(event.data);
+                    }
+                };
+
+                mediaRecorder.onstop = () => {
+                    // Skapa blob från chunks
+                    recordedBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                    const audioUrl = URL.createObjectURL(recordedBlob);
+                    
+                    // Visa inspelningen
+                    const recordedAudio = document.getElementById('recordedAudio');
+                    recordedAudio.src = audioUrl;
+                    document.getElementById('recordedAudioSection').style.display = 'block';
+                    
+                    // Stoppa timern
+                    clearInterval(recordingTimer);
+                    
+                    // Stoppa stream
+                    recordingStream.getTracks().forEach(track => track.stop());
+                };
+
+                // Starta inspelning
+                mediaRecorder.start();
+                recordingStartTime = Date.now();
+
+                // Uppdatera UI
+                document.getElementById('recordingSection').classList.add('show');
+                const recordBtn = document.getElementById('recordToggleBtn');
+                recordBtn.classList.add('recording');
+                recordBtn.innerHTML = '⏹️ Stoppa inspelning';
+                
+                // Starta timer
+                startRecordingTimer();
+                
+                showStatus('🎙️ Inspelning startad - Tala in din röst!', 'playing');
+
+            } catch (error) {
+                console.error('Mikrofonfel:', error);
+                showStatus('❌ Kunde inte få tillgång till mikrofonen', 'error');
+            }
+        }
+
+        // Stoppa inspelning
+        function stopRecording() {
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                mediaRecorder.stop();
+                
+                // Uppdatera UI
+                const recordBtn = document.getElementById('recordToggleBtn');
+                recordBtn.classList.remove('recording');
+                recordBtn.innerHTML = '🎙️ Spela in din röst';
+                
+                showStatus('✅ Inspelning sparad!', 'success');
+                
+                setTimeout(() => {
+                    document.getElementById('status').classList.remove('show');
+                }, 3000);
+            }
+        }
+
+        // Timer för inspelning
+        function startRecordingTimer() {
+            const timerDisplay = document.getElementById('recordingTimer');
+            
+            recordingTimer = setInterval(() => {
+                const elapsed = Date.now() - recordingStartTime;
+                const seconds = Math.floor(elapsed / 1000);
+                const minutes = Math.floor(seconds / 60);
+                const displaySeconds = seconds % 60;
+                
+                timerDisplay.textContent = 
+                    `${String(minutes).padStart(2, '0')}:${String(displaySeconds).padStart(2, '0')}`;
+            }, 100);
+        }
+
+        // Spara inspelning
+        function saveRecording() {
+            if (!recordedBlob) {
+                showStatus('❌ Ingen inspelning att spara', 'error');
+                return;
+            }
+
+            // Skapa nedladdningslänk
+            const url = URL.createObjectURL(recordedBlob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `rostinspelning-${currentLang}-${Date.now()}.wav`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            showStatus('💾 Inspelning sparad!', 'success');
+            
+            setTimeout(() => {
+                document.getElementById('status').classList.remove('show');
+            }, 3000);
+        }
+
+        // Ta bort inspelning
+        function deleteRecording() {
+            recordedBlob = null;
+            document.getElementById('recordedAudio').src = '';
+            document.getElementById('recordedAudioSection').style.display = 'none';
+            document.getElementById('recordingSection').classList.remove('show');
+            document.getElementById('recordingTimer').textContent = '00:00';
+            
+            showStatus('🗑️ Inspelning borttagen', 'stopped');
+            
+            setTimeout(() => {
+                document.getElementById('status').classList.remove('show');
+            }, 2000);
         }
     </script>
 </body>
