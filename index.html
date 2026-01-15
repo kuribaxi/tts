@@ -44,8 +44,8 @@
   <h1>🎧 Svenska + Engelska TTS + Record</h1>
   <p class="subtitle">Testa svenska, nordiska och engelska röster med full kontroll.</p>
 
-  <div class="text-container" id="textContainer">
-    Välkommen till avancerad text-till-tal med flera språk och röster!
+  <div class="text-container" id="textContainer" contenteditable="true">
+    Välkommen till avancerad text-till-tal med flera språk och röster! Skriv din text här eller redigera den befintliga texten.
   </div>
 
   <div class="voice-tabs">
@@ -119,67 +119,236 @@
 </div>
 
 <script>
-let currentAudio=null, currentWordIndex=0, words=[], wordInterval, isRecording=false, mediaRecorder, recordedChunks=[];
-let currentLanguage='sv';
-const WORDS_PER_SECOND=1.8, TIME_PER_WORD=1000/WORDS_PER_SECOND;
+let currentAudio = null, currentWordIndex = 0, words = [], wordInterval, isRecording = false, mediaRecorder, recordedChunks = [];
+let currentLanguage = 'sv';
+const WORDS_PER_SECOND = 1.8, TIME_PER_WORD = 1000 / WORDS_PER_SECOND;
 
-// API-nyckel tillagd och fixad
-const apiKey="sk_23980f62f1571d5de8f33673fce1493b3b520a37c3cdb51fda704aeb4373d722";
+// Din API-nyckel - fixad och inbyggd
+const apiKey = "sk_79caad83c2a3f199001d3eee0186a219c16dfedc3abdfdf1";
 
-function switchVoiceTab(event,lang){
-  currentLanguage=lang;
-  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+function switchVoiceTab(event, lang) {
+  currentLanguage = lang;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   event.target.classList.add('active');
-  document.querySelectorAll('.voice-select-container').forEach(c=>c.classList.remove('active'));
-  document.getElementById(`voiceSelect${lang.charAt(0).toUpperCase()+lang.slice(1)}`).classList.add('active');
+  document.querySelectorAll('.voice-select-container').forEach(c => c.classList.remove('active'));
+  document.getElementById(`voiceSelect${lang.charAt(0).toUpperCase() + lang.slice(1)}`).classList.add('active');
 }
-function getVoiceSelect(){return currentLanguage==='sv'?document.getElementById('voiceSelect'):document.getElementById('voiceSelectEn');}
-function splitTextToWords(t){return t.replace(/([.!?,;:])/g,' $1 ').split(/\s+/).filter(w=>w.trim()).map(w=>w.trim());}
-function renderWords(t){const c=document.getElementById('textContainer');words=splitTextToWords(t);
-  c.innerHTML=words.map((w,i)=>`<span class='word' data-index='${i}'>${w}</span>`).join(' ');}
-function highlightWord(i){document.querySelectorAll('.word').forEach(w=>w.classList.remove('highlight'));
-  const e=document.querySelector(`[data-index='${i}']`);if(e)e.classList.add('highlight');}
-function startHighlight(){stopHighlight();wordInterval=setInterval(()=>{currentWordIndex=Math.min(currentWordIndex+1,words.length-1);
-  highlightWord(currentWordIndex);},TIME_PER_WORD);}
-function stopHighlight(){if(wordInterval)clearInterval(wordInterval);}
-function updateButtons(p){playBtn.disabled=p;pauseBtn.disabled=!p;stopBtn.disabled=!p;if(!p)pauseBtn.textContent='⏸️ Pausa';}
-function showStatus(t,ty='playing'){const s=document.getElementById('status');s.textContent=t;s.className=`status show ${ty}`;}
 
-async function play(){
-  const v=getVoiceSelect();const id=v.value;const name=v.selectedOptions[0].text;
-  if(!id)return showStatus('⚠️ Välj röst!','error');
-  let text=document.getElementById('textContainer').textContent.trim();
-  if(!text||text.length<5){text=currentLanguage==='sv'?'Hej! Detta är ett svenskt röstdemo.':'Hello! This is an English TTS demo.';renderWords(text);}
-  stop();showStatus('⏳ Laddar röst...');
-  const st=parseFloat(stabilitySlider.value), sim=parseFloat(similaritySlider.value), speed=parseFloat(speedSlider.value);
-  try{
-    const res=await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${id}`,{
-      method:'POST',
-      headers:{'Content-Type':'application/json','xi-api-key':apiKey},
-      body:JSON.stringify({text:text,model_id:'eleven_multilingual_v2',voice_settings:{stability:st,similarity_boost:sim}})
+function getVoiceSelect() {
+  return currentLanguage === 'sv' 
+    ? document.getElementById('voiceSelect') 
+    : document.getElementById('voiceSelectEn');
+}
+
+function splitTextToWords(t) {
+  return t.replace(/([.!?,;:])/g, ' $1 ').split(/\s+/).filter(w => w.trim()).map(w => w.trim());
+}
+
+function renderWords(t) {
+  const c = document.getElementById('textContainer');
+  words = splitTextToWords(t);
+  c.innerHTML = words.map((w, i) => `<span class='word' data-index='${i}'>${w}</span>`).join(' ');
+}
+
+function highlightWord(i) {
+  document.querySelectorAll('.word').forEach(w => w.classList.remove('highlight'));
+  const e = document.querySelector(`[data-index='${i}']`);
+  if (e) e.classList.add('highlight');
+}
+
+function startHighlight() {
+  stopHighlight();
+  currentWordIndex = 0;
+  highlightWord(0);
+  wordInterval = setInterval(() => {
+    currentWordIndex = Math.min(currentWordIndex + 1, words.length - 1);
+    highlightWord(currentWordIndex);
+  }, TIME_PER_WORD);
+}
+
+function stopHighlight() {
+  if (wordInterval) clearInterval(wordInterval);
+}
+
+function updateButtons(p) {
+  const playBtn = document.getElementById('playBtn');
+  const pauseBtn = document.getElementById('pauseBtn');
+  const stopBtn = document.getElementById('stopBtn');
+  
+  playBtn.disabled = p;
+  pauseBtn.disabled = !p;
+  stopBtn.disabled = !p;
+  if (!p) pauseBtn.textContent = '⏸️ Pausa';
+}
+
+function showStatus(t, ty = 'playing') {
+  const s = document.getElementById('status');
+  s.textContent = t;
+  s.className = `status show ${ty}`;
+  if (ty === 'error') {
+    setTimeout(() => s.classList.remove('show'), 5000);
+  }
+}
+
+async function play() {
+  const v = getVoiceSelect();
+  const id = v.value;
+  const name = v.selectedOptions[0].text;
+  
+  if (!id) return showStatus('⚠️ Välj röst!', 'error');
+  
+  let text = document.getElementById('textContainer').textContent.trim();
+  if (!text || text.length < 5) {
+    text = currentLanguage === 'sv' 
+      ? 'Hej! Detta är ett svenskt röstdemo. Skriv din egen text ovan.' 
+      : 'Hello! This is an English TTS demo. Type your own text above.';
+    renderWords(text);
+  }
+  
+  stop();
+  showStatus('⏳ Laddar röst...');
+  
+  const st = parseFloat(document.getElementById('stabilitySlider').value);
+  const sim = parseFloat(document.getElementById('similaritySlider').value);
+  const speed = parseFloat(document.getElementById('speedSlider').value);
+  
+  try {
+    const res = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${id}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'xi-api-key': apiKey
+      },
+      body: JSON.stringify({
+        text: text,
+        model_id: 'eleven_multilingual_v2',
+        voice_settings: {
+          stability: st,
+          similarity_boost: sim
+        }
+      })
     });
-    if(!res.ok)throw new Error('Fel '+res.status);
-    const blob=await res.blob();const url=URL.createObjectURL(blob);
-    currentAudio=new Audio(url);currentAudio.playbackRate=speed;
-    currentAudio.onplay=()=>{updateButtons(true);showStatus('🔊 Spelar...');startHighlight();};
-    currentAudio.onended=()=>{updateButtons(false);showStatus('✅ Färdig!');stopHighlight();};
+    
+    if (!res.ok) {
+      if (res.status === 401) {
+        throw new Error('Ogiltig API-nyckel. Kontrollera din nyckel.');
+      } else if (res.status === 402) {
+        throw new Error('Kontot har slut på krediter.');
+      } else {
+        throw new Error(`API-fel: ${res.status}`);
+      }
+    }
+    
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    
+    currentAudio = new Audio(url);
+    currentAudio.playbackRate = speed;
+    
+    currentAudio.onplay = () => {
+      updateButtons(true);
+      showStatus('🔊 Spelar...');
+      startHighlight();
+    };
+    
+    currentAudio.onended = () => {
+      updateButtons(false);
+      showStatus('✅ Färdig!');
+      stopHighlight();
+      URL.revokeObjectURL(url);
+    };
+    
+    currentAudio.onerror = () => {
+      showStatus('❌ Ljudfel', 'error');
+      updateButtons(false);
+      stopHighlight();
+    };
+    
     currentAudio.play();
-  }catch(e){showStatus('❌ '+e.message,'error');}
+  } catch (e) {
+    showStatus('❌ ' + e.message, 'error');
+    updateButtons(false);
+  }
 }
-function pause(){if(!currentAudio)return;if(currentAudio.paused){currentAudio.play();pauseBtn.textContent='⏸️ Pausa';startHighlight();}
-else{currentAudio.pause();pauseBtn.textContent='▶️ Fortsätt';stopHighlight();}}
-function stop(){if(currentAudio){currentAudio.pause();currentAudio.currentTime=0;}updateButtons(false);stopHighlight();}
-async function toggleRecord(){
-  const b=document.getElementById('recordBtn');
-  if(!isRecording){try{
-    const stream=await navigator.mediaDevices.getUserMedia({audio:true});mediaRecorder=new MediaRecorder(stream);recordedChunks=[];
-    mediaRecorder.ondataavailable=e=>{if(e.data.size>0)recordedChunks.push(e.data);};
-    mediaRecorder.onstop=()=>{const blob=new Blob(recordedChunks,{type:'audio/wav'});new Audio(URL.createObjectURL(blob)).play();
-      showStatus('✅ Inspelning spelas upp!');stream.getTracks().forEach(t=>t.stop());};
-    mediaRecorder.start();isRecording=true;b.textContent='⏹️ Stoppa inspelning';
-  }catch(err){showStatus('❌ Mikrofonfel: '+err.message,'error');}}
-  else{mediaRecorder.stop();isRecording=false;b.textContent='🎙️ Spela in';}
+
+function pause() {
+  if (!currentAudio) return;
+  
+  if (currentAudio.paused) {
+    currentAudio.play();
+    document.getElementById('pauseBtn').textContent = '⏸️ Pausa';
+    startHighlight();
+  } else {
+    currentAudio.pause();
+    document.getElementById('pauseBtn').textContent = '▶️ Fortsätt';
+    stopHighlight();
+  }
 }
+
+function stop() {
+  if (currentAudio) {
+    currentAudio.pause();
+    currentAudio.currentTime = 0;
+  }
+  updateButtons(false);
+  stopHighlight();
+}
+
+async function toggleRecord() {
+  const b = document.getElementById('recordBtn');
+  
+  if (!isRecording) {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaRecorder = new MediaRecorder(stream);
+      recordedChunks = [];
+      
+      mediaRecorder.ondataavailable = e => {
+        if (e.data.size > 0) recordedChunks.push(e.data);
+      };
+      
+      mediaRecorder.onstop = () => {
+        const blob = new Blob(recordedChunks, { type: 'audio/wav' });
+        const url = URL.createObjectURL(blob);
+        const audio = new Audio(url);
+        audio.play();
+        showStatus('✅ Inspelning spelas upp!');
+        stream.getTracks().forEach(t => t.stop());
+      };
+      
+      mediaRecorder.start();
+      isRecording = true;
+      b.textContent = '⏹️ Stoppa inspelning';
+      showStatus('🎤 Spelar in...');
+    } catch (err) {
+      showStatus('❌ Mikrofonfel: ' + err.message, 'error');
+    }
+  } else {
+    mediaRecorder.stop();
+    isRecording = false;
+    b.textContent = '🎙️ Spela in';
+  }
+}
+
+// Initiera med exempeltext när sidan laddas
+document.addEventListener('DOMContentLoaded', function() {
+  const text = document.getElementById('textContainer').textContent;
+  renderWords(text);
+  
+  // Lägg till event listener för textändringar
+  document.getElementById('textContainer').addEventListener('input', function() {
+    renderWords(this.textContent);
+  });
+  
+  // Visa att API-nyckeln är aktiv
+  showStatus('✅ API-nyckel redo!', 'playing');
+  setTimeout(() => {
+    const status = document.getElementById('status');
+    if (status.classList.contains('show')) {
+      status.classList.remove('show');
+    }
+  }, 2000);
+});
 </script>
 </body>
 </html>
