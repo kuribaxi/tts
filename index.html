@@ -3,239 +3,117 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎤 Ultimat TTS - 25+ Röster + Textrullar</title>
+    <title>🎤 Svenska + Engelska Röster + Record</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Segoe UI', Arial, sans-serif;
+            font-family: 'Segoe UI', sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            padding: 10px;
+            padding: 20px;
             display: flex;
-            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
-        
-        .clock {
-            position: fixed;
-            top: 20px;
-            right: 20px;
+        .container {
             background: rgba(255,255,255,0.95);
-            padding: 12px 20px;
-            border-radius: 25px;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
-            backdrop-filter: blur(15px);
-            font-size: 20px;
-            font-weight: bold;
-            color: #2d3748;
-            z-index: 1000;
-            min-width: 140px;
-            text-align: center;
-        }
-        
-        .main-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            max-width: 1400px;
-            margin: 0 auto;
-            margin-top: 70px;
-            gap: 15px;
-        }
-        
-        /* TEXTFÖNSTER - ALLTID 70vh FIXED */
-        .text-container {
-            background: rgba(247, 250, 252, 0.98);
-            border: 3px solid #e2e8f0;
             border-radius: 20px;
-            height: 70vh !important;
-            min-height: 70vh !important;
-            max-height: 70vh !important;
-            width: 100%;
             padding: 30px;
-            font-size: clamp(28px, 5vw, 52px);
-            line-height: 1.6;
-            overflow-y: auto;
-            scroll-behavior: smooth;
-            position: relative;
-            contenteditable: true;
-            spellcheck: false;
-            font-family: inherit;
-            cursor: text;
+            max-width: 1100px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
         }
-        .text-container:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+        h1 { color: #4a5568; margin-bottom: 10px; text-align: center; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 25px; }
+        
+        /* ULTRA-LÅNGSAM HÖGTEXTNING */
+        .text-container {
+            background: #f7fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 25px;
+            min-height: 180px;
+            margin-bottom: 20px;
+            font-size: 22px;
+            line-height: 1.9;
+            overflow-y: auto;
+            max-height: 320px;
         }
         .word {
             display: inline-block;
-            margin: 0 6px 12px 0;
-            padding: 8px 12px;
-            border-radius: 12px;
+            margin: 0 4px 10px 0;
+            padding: 5px 8px;
+            border-radius: 8px;
             transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
             cursor: pointer;
-            background: rgba(255,255,255,0.7);
-            font-weight: 600;
+            background: rgba(255,255,255,0.6);
+            font-weight: 500;
         }
         .word.highlight {
             background: linear-gradient(90deg, #ffeb3b, #ffa000) !important;
             color: #000 !important;
-            font-weight: 900 !important;
-            box-shadow: 0 8px 25px rgba(255,235,59,0.8);
-            transform: scale(1.2);
-            border: 4px solid #ff8f00;
-            animation: glow 1.2s ease-in-out infinite alternate;
+            font-weight: 800 !important;
+            box-shadow: 0 6px 20px rgba(255,235,59,0.7);
+            transform: scale(1.15);
+            border: 3px solid #ff8f00;
+            animation: glow 1s ease-in-out infinite alternate;
         }
         @keyframes glow {
-            from { box-shadow: 0 8px 25px rgba(255,235,59,0.8); }
-            to { box-shadow: 0 8px 35px rgba(255,235,59,1); }
+            from { box-shadow: 0 6px 20px rgba(255,235,59,0.7); }
+            to { box-shadow: 0 6px 25px rgba(255,235,59,1); }
         }
         
-        /* SIDHINDRARE */
-        .page-controls {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-        .page-btn {
-            width: 50px;
-            height: 50px;
-            border: none;
-            border-radius: 50%;
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s;
-        }
-        .page-btn:hover:not(:disabled) { transform: scale(1.1); }
-        .page-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-        .page-prev { background: linear-gradient(135deg, #ed8936, #dd6b20); }
-        .page-next { background: linear-gradient(135deg, #48bb78, #38a169); }
-        .page-info {
-            font-size: 16px;
-            font-weight: bold;
-            color: #4a5568;
-            padding: 10px 20px;
-            background: rgba(255,255,255,0.8);
-            border-radius: 20px;
-        }
-        
-        .controls-panel {
-            background: rgba(255,255,255,0.95);
-            padding: 20px;
-            border-radius: 25px;
-            box-shadow: 0 15px 50px rgba(0,0,0,0.4);
-            backdrop-filter: blur(20px);
-            width: 100%;
-            max-width: 1400px;
-            margin: 0 auto 20px auto;
-        }
-        
-        .file-upload, .font-controls, .zoom-controls, .voice-tabs {
+        /* TVÅ RÖST-RUTOR */
+        .voice-tabs {
             display: flex;
             gap: 10px;
-            justify-content: center;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
-        .file-input { display: none; }
-        .file-btn, .font-btn, .zoom-btn, .tab-btn {
-            padding: 12px 20px;
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
             border: none;
-            border-radius: 12px;
-            font-size: 14px;
+            border-radius: 10px;
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s;
+        }
+        .tab-btn.active {
+            background: #667eea;
             color: white;
-        }
-        .zoom-btn { 
-            width: 60px; 
-            height: 60px; 
-            border-radius: 50%; 
-            font-size: 24px; 
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .zoom-btn:hover:not(:disabled), .font-btn:hover, .tab-btn:hover, .file-btn:hover {
             transform: translateY(-2px);
         }
-        .zoom-in { background: linear-gradient(135deg, #10b981, #059669); }
-        .zoom-out { background: linear-gradient(135deg, #ef4444, #dc2626); }
-        .file-btn { background: linear-gradient(135deg, #f6ad55, #ed8936); }
-        .font-arial { background: linear-gradient(135deg, #667eea, #764ba2); }
-        .font-georgia { background: linear-gradient(135deg, #48bb78, #38a169); }
-        .font-times { background: linear-gradient(135deg, #ed8936, #dd6b20); }
-        .font-open-sans { background: linear-gradient(135deg, #9f7aea, #805ad5); }
-        .tab-btn.active, .font-btn.active { 
-            box-shadow: 0 6px 20px rgba(0,0,0,0.3); 
-            transform: translateY(-2px);
+        .voice-select-container {
+            display: none;
+        }
+        .voice-select-container.active {
+            display: block;
         }
         
-        .zoom-text {
-            font-size: 18px;
-            font-weight: bold;
-            color: #4a5568;
-            text-align: center;
-            padding: 15px 20px;
-            background: rgba(255,255,255,0.8);
-            border-radius: 20px;
-        }
-        
-        select {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e2e8f0;
-            border-radius: 12px;
-            font-size: 16px;
-            background: white;
-            margin-bottom: 15px;
-        }
-        
-        .voice-select-container { display: none; }
-        .voice-select-container.active { display: block; }
-        
+        /* INSTÄLLNINGAR */
         .settings {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            margin-bottom: 20px;
+            gap: 20px;
+            margin: 25px 0;
+            padding: 20px;
+            background: #f8f9ff;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
         }
-        .setting {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        .setting label {
-            font-weight: 600;
-            color: #4a5568;
-            font-size: 14px;
-        }
+        .setting { display: flex; flex-direction: column; gap: 8px; }
+        .setting label { font-weight: 600; color: #4a5568; font-size: 14px; }
         input[type="range"] {
-            width: 100%;
-            height: 8px;
-            border-radius: 5px;
-            background: #e2e8f0;
-            accent-color: #667eea;
+            width: 100%; height: 8px; border-radius: 5px;
+            background: #e2e8f0; accent-color: #667eea; cursor: pointer;
         }
-        .value {
-            font-weight: bold;
-            color: #667eea;
-            font-size: 14px;
-            text-align: center;
-        }
+        .value { font-weight: bold; color: #667eea; font-size: 16px; text-align: center; }
         
-        .play-controls {
-            display: flex;
-            gap: 12px;
-            justify-content: center;
-            margin-bottom: 15px;
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 20px 0;
         }
         .btn {
             padding: 14px 24px;
@@ -246,27 +124,31 @@
             cursor: pointer;
             transition: all 0.3s;
             color: white;
-            flex: 1;
         }
-        .btn:hover:not(:disabled) { transform: translateY(-2px); }
+        .btn:hover:not(:disabled) { transform: translateY(-3px); }
         .btn:disabled { opacity: 0.5; cursor: not-allowed; }
         .btn-play { background: linear-gradient(135deg, #48bb78, #38a169); }
         .btn-pause { background: linear-gradient(135deg, #ed8936, #dd6b20); }
         .btn-stop { background: linear-gradient(135deg, #f56565, #e53e3e); }
-        .btn-record {
-            background: linear-gradient(135deg, #9f7aea, #805ad5);
-            padding: 16px 32px;
-            width: auto;
-            font-size: 18px;
+        .btn-record { 
+            background: linear-gradient(135deg, #9f7aea, #805ad5); 
+            grid-column: 1 / -1;
+            margin-top: 10px;
         }
-        
+        select {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 16px;
+            background: white;
+        }
         .status {
             padding: 15px;
             border-radius: 12px;
             text-align: center;
             font-weight: bold;
-            margin-top: 15px;
-            font-size: 16px;
+            margin-top: 20px;
             display: none;
         }
         .status.show { display: block; animation: fadeIn 0.3s; }
@@ -277,75 +159,330 @@
     </style>
 </head>
 <body>
-    <!-- KLOCKA -->
-    <div class="clock" id="clock">12:59</div>
-    
-    <!-- HUVUDINNEHÅLL -->
-    <div class="main-content">
-        <!-- TEXTFÖNSTER -->
-        <div class="text-container" id="textContainer" contenteditable="true" spellcheck="false" placeholder="Klistra in text eller ladda upp fil...">
-            Välkommen! Alla funktioner fungerar nu perfekt. Testa play, pause, stop, record!
+    <div class="container">
+        <h1>🎤 Svenska + Engelska TTS</h1>
+        <p class="subtitle">1.8 ord/sek + Stability + Record + 25+ röster</p>
+        
+        <div class="text-container" id="textContainer">
+            Testa svenska och engelska röster! Klicka på flikarna ovanför.
         </div>
         
-        <!-- SIDHINDRARE -->
-        <div class="page-controls">
-            <button class="page-btn page-prev" onclick="prevPage()" id="prevBtn" disabled>⬅️</button>
-            <div class="page-info" id="pageInfo">Sida 1 / 1</div>
-            <button class="page-btn page-next" onclick="nextPage()" id="nextBtn">➡️</button>
+        <!-- FLIKAR FÖR SVENSKA/ENGELSKA -->
+        <div class="voice-tabs">
+            <button class="tab-btn active" onclick="switchVoiceTab('sv')">🇸🇪 Svenska (12+)</button>
+            <button class="tab-btn" onclick="switchVoiceTab('en')">🇺🇸 Engelska (12+)</button>
         </div>
         
-        <!-- KONTROLLER -->
-        <div class="controls-panel">
-            <!-- FIL + FONT + ZOOM -->
-            <div class="file-upload">
-                <input type="file" id="fileInput" class="file-input" accept=".pdf,.doc,.docx,.txt">
-                <label for="fileInput" class="file-btn">📄 Ladda upp</label>
-                <button class="file-btn" onclick="clearText()">🗑️ Rensa</button>
+        <!-- SVENSKA RÖSTER -->
+        <div id="voiceSelectSv" class="voice-select-container active">
+            <select id="voiceSelect">
+                <optgroup label="🇸🇪 Svenska Röster">
+                    <option value="pNInz6obpgDQGcFmaJgB">🇸🇪 Erik (Manlig)</option>
+                    <option value="AZnzlk1XvdvUeBnXmlld">🇸🇪 Mette (Kvinnlig)</option>
+                    <option value="21m00Tcm4TlvDq8ikWAM">🇸🇪 Sofia (Kvinnlig)</option>
+                    <option value="bVMeCyUxXxWGijw3xV1F">🇸🇪 Oscar (Manlig)</option>
+                    <option value="NYMB0I896s9V4U6OH0Ao">🇸🇪 Lisa (Kvinnlig)</option>
+                    <option value="VR6AewLTigWG4xSOukaG">🇸🇪 Astrid</option>
+                    <option value="TX3LPjmqiSv4veJb5s9J">🇸🇪 Oscar Neural</option>
+                    <option value="CYw3kZ02Hs0563khs1Fj">🇸🇪 Johan</option>
+                </optgroup>
+                <optgroup label="🌍 Nordiska">
+                    <option value="EXAVITQu4vr4xnSDxMaL">🌍 Adam (Premium)</option>
+                    <option value="D38z5RcWu1voky8WS1ja">🌍 Bjørn</option>
+                    <option value="N2lVS1w4EtoT3Dr4wxR2">🌍 Matilda</option>
+                </optgroup>
+            </select>
+        </div>
+        
+        <!-- ENGELSKA RÖSTER -->
+        <div id="voiceSelectEn" class="voice-select-container">
+            <select id="voiceSelectEn">
+                <optgroup label="🇺🇸 USA Engelska">
+                    <option value="pNInz6obpgDQGcFmaJgB">🇺🇸 Adam</option>
+                    <option value="AZnzlk1XvdvUeBnXmlld">🇺🇸 Rachel</option>
+                    <option value="EXAVITQu4vr4xnSDxMaL">🇺🇸 Josh</option>
+                    <option value="D38z5RcWu1voky8WS1ja">🇺🇸 Domi</option>
+                    <option value="21m00Tcm4TlvDq8ikWAM">🇺🇸 Bella</option>
+                    <option value="TX3LPjmqiSv4veJb5s9J">🇺🇸 Antoni</option>
+                </optgroup>
+                <optgroup label="🇬🇧 Brittiska">
+                    <option value="CYw3kZ02Hs0563khs1Fj">🇬🇧 Elli</option>
+                    <option value="VR6AewLTigWG4xSOukaG">🇬🇧 Finley</option>
+                    <option value="N2lVS1w4EtoT3Dr4wxR2">🇬🇧 Grace</option>
+                    <option value="bVMeCyUxXxWGijw3xV1F">🇬🇧 Harry</option>
+                </optgroup>
+            </select>
+        </div>
+        
+        <!-- INSTÄLLNINGAR -->
+        <div class="settings">
+            <div class="setting">
+                <label>🎙️ Stability</label>
+                <input type="range" id="stabilitySlider" min="0" max="1" step="0.1" value="0.5">
+                <div class="value" id="stabilityValue">50% ⚖️ Neutral</div>
             </div>
-            
-            <div class="font-controls">
-                <button class="font-btn font-arial active" onclick="setFont('Arial')">A</button>
-                <button class="font-btn font-georgia" onclick="setFont('Georgia')">G</button>
-                <button class="font-btn font-times" onclick="setFont('Times New Roman')">T</button>
-                <button class="font-btn font-open-sans" onclick="setFont('Open Sans')">O</button>
+            <div class="setting">
+                <label>⚡ Hastighet</label>
+                <input type="range" id="speedSlider" min="0.5" max="2.0" step="0.1" value="1.0">
+                <div class="value" id="speedValue">1.0x</div>
             </div>
-            
-            <div class="zoom-controls">
-                <button class="zoom-btn zoom-out" onclick="zoomText(-2)">➖</button>
-                <div class="zoom-text" id="zoomDisplay">Normal</div>
-                <button class="zoom-btn zoom-in" onclick="zoomText(2)">➕</button>
+            <div class="setting">
+                <label>🎵 Likhet</label>
+                <input type="range" id="similaritySlider" min="0" max="1" step="0.1" value="0.8">
+                <div class="value" id="similarityValue">80%</div>
             </div>
-            
-            <!-- RÖSTFLIKAR + 25+ RÖSTER -->
-            <div class="voice-tabs">
-                <button class="tab-btn active" onclick="switchVoiceTab('sv')">🇸🇪 Svenska (12+)</button>
-                <button class="tab-btn" onclick="switchVoiceTab('en')">🇺🇸 Engelska (12+)</button>
+        </div>
+        
+        <div class="controls">
+            <div>
+                <button class="btn btn-play" onclick="play()" id="playBtn">▶️ Spela</button>
+                <button class="btn btn-pause" onclick="pause()" id="pauseBtn" disabled>⏸️ Pausa</button>
+                <button class="btn btn-stop" onclick="stop()" id="stopBtn" disabled>⏹️ Stoppa</button>
             </div>
+        </div>
+        
+        <button class="btn btn-record" onclick="toggleRecord()" id="recordBtn">🎙️ Spela in</button>
+        <div id="status" class="status"></div>
+    </div>
+
+    <script>
+        const apiKey = "sk_60c4c7932387d49badab6bd0a03a90af0769b75e71157d90";
+        let currentAudio = null;
+        let words = [];
+        let currentWordIndex = 0;
+        let wordInterval = null;
+        let mediaRecorder = null;
+        let recordedChunks = [];
+        let isRecording = false;
+        const WORDS_PER_SECOND = 1.8;
+        const TIME_PER_WORD = 1000 / WORDS_PER_SECOND;
+        let currentLanguage = 'sv';
+
+        function switchVoiceTab(lang) {
+            currentLanguage = lang;
             
-            <div id="voiceSelectSv" class="voice-select-container active">
-                <select id="voiceSelect">
-                    <optgroup label="🇸🇪 Svenska Röster">
-                        <option value="pNInz6obpgDQGcFmaJgB">🇸🇪 Erik</option>
-                        <option value="AZnzlk1XvdvUeBnXmlld">🇸🇪 Mette</option>
-                        <option value="21m00Tcm4TlvDq8ikWAM">🇸🇪 Sofia</option>
-                        <option value="bVMeCyUxXxWGijw3xV1F">🇸🇪 Oscar</option>
-                        <option value="NYMB0I896s9V4U6OH0Ao">🇸🇪 Lisa</option>
-                        <option value="VR6AewLTigWG4xSOukaG">🇸🇪 Astrid</option>
-                        <option value="TX3LPjmqiSv4veJb5s9J">🇸🇪 Oscar Neural</option>
-                        <option value="CYw3kZ02Hs0563khs1Fj">🇸🇪 Johan</option>
-                    </optgroup>
-                    <optgroup label="🌍 Nordiska">
-                        <option value="EXAVITQu4vr4xnSDxMaL">🌍 Adam Premium</option>
-                        <option value="D38z5RcWu1voky8WS1ja">🌍 Bjørn</option>
-                    </optgroup>
-                </select>
-            </div>
+            // Byt flik
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
             
-            <div id="voiceSelectEn" class="voice-select-container">
-                <select id="voiceSelectEn">
-                    <optgroup label="🇺🇸 USA Engelska">
-                        <option value="pNInz6obpgDQGcFmaJgB">🇺🇸 Adam</option>
-                        <option value="AZnzlk1XvdvUeBnXmlld">🇺🇸 Rachel</option>
-                        <option value="EXAVITQu4vr4xnSDxMaL">🇺🇸 Josh</option>
-                        <option value="D38z5RcWu1voky8WS1ja">🇺🇸 Domi</option>
-                        <option value="21m00Tcm4TlvDq8
+            // Visa rätt select
+            document.querySelectorAll('.voice-select-container').forEach(container => 
+                container.classList.remove('active'));
+            document.getElementById(`voiceSelect${lang.charAt(0).toUpperCase() + lang.slice(1)}`).classList.add('active');
+        }
+
+        function getVoiceSelect() {
+            return currentLanguage === 'sv' ? 
+                document.getElementById('voiceSelect') : 
+                document.getElementById('voiceSelectEn');
+        }
+
+        function splitTextToWords(text) {
+            return text
+                .replace(/([.!?,;:])/g, ' $1 ')
+                .split(/\s+/)
+                .filter(w => w.trim().length > 0)
+                .map(w => w.trim());
+        }
+
+        function renderTextWithWords(text) {
+            const container = document.getElementById('textContainer');
+            words = splitTextToWords(text);
+            container.innerHTML = words.map((word, index) => 
+                `<span class="word" data-index="${index}">${word}</span>`
+            ).join(' ');
+        }
+
+        function highlightWord(index) {
+            document.querySelectorAll('.word').forEach(w => w.classList.remove('highlight'));
+            if (index >= 0 && index < words.length) {
+                const wordEl = document.querySelector(`[data-index="${index}"]`);
+                if (wordEl) {
+                    wordEl.classList.add('highlight');
+                    wordEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+        }
+
+        function startWordHighlighting() {
+            if (wordInterval) clearInterval(wordInterval);
+            wordInterval = setInterval(() => {
+                currentWordIndex = Math.min(currentWordIndex + 1, words.length - 1);
+                highlightWord(currentWordIndex);
+            }, TIME_PER_WORD);
+        }
+
+        function stopWordHighlighting() {
+            if (wordInterval) clearInterval(wordInterval);
+            wordInterval = null;
+        }
+
+        function clearHighlights() {
+            document.querySelectorAll('.word').forEach(w => w.classList.remove('highlight'));
+            currentWordIndex = 0;
+        }
+
+        // SLIDERS
+        document.getElementById('stabilitySlider').oninput = function() {
+            const val = Math.round(this.value * 100);
+            document.getElementById('stabilityValue').textContent = 
+                val + '% ' + (val < 30 ? '🌀 Kreativ' : val > 70 ? '🛡️ Robust' : '⚖️ Neutral');
+        };
+        document.getElementById('speedSlider').oninput = function() {
+            document.getElementById('speedValue').textContent = this.value + 'x';
+        };
+        document.getElementById('similaritySlider').oninput = function() {
+            document.getElementById('similarityValue').textContent = 
+                Math.round(this.value * 100) + '%';
+        };
+
+        function showStatus(msg, type = 'playing') {
+            const status = document.getElementById('status');
+            status.textContent = msg;
+            status.className = `status show ${type}`;
+            setTimeout(() => status.classList.remove('show'), 2500);
+        }
+
+        async function toggleRecord() {
+            if (!isRecording) {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    mediaRecorder = new MediaRecorder(stream);
+                    recordedChunks = [];
+                    
+                    mediaRecorder.ondataavailable = (e) => {
+                        if (e.data.size > 0) recordedChunks.push(e.data);
+                    };
+                    
+                    mediaRecorder.onstop = () => {
+                        const audioBlob = new Blob(recordedChunks, { type: 'audio/wav' });
+                        const audioUrl = URL.createObjectURL(audioBlob);
+                        const audio = new Audio(audioUrl);
+                        audio.play();
+                        showStatus('✅ Inspelning klar!', 'playing');
+                        stream.getTracks().forEach(track => track.stop());
+                    };
+                    
+                    mediaRecorder.start();
+                    isRecording = true;
+                    document.getElementById('recordBtn').textContent = '⏹️ Stoppa inspelning';
+                    document.getElementById('recordBtn').style.background = 'linear-gradient(135deg, #f56565, #e53e3e)';
+                    showStatus('🎙️ Spelar in...', 'recording');
+                    
+                } catch (err) {
+                    showStatus('❌ Mikrofonfel!', 'error');
+                }
+            } else {
+                mediaRecorder.stop();
+                isRecording = false;
+                document.getElementById('recordBtn').textContent = '🎙️ Spela in';
+                document.getElementById('recordBtn').style.background = 'linear-gradient(135deg, #9f7aea, #805ad5)';
+            }
+        }
+
+        async function play() {
+            const voiceSelect = getVoiceSelect();
+            const voiceId = voiceSelect.value;
+            const voiceName = voiceSelect.selectedOptions[0].text;
+            
+            if (!voiceId) return showStatus('⚠️ Välj röst!', 'error');
+            
+            let text = document.getElementById('textContainer').textContent.trim();
+            if (!text || text.length < 20) {
+                text = currentLanguage === 'sv' ? 
+                    "Välkommen till komplett text till tal med svenska och engelska röster." :
+                    "Welcome to complete text-to-speech with Swedish and English voices.";
+                renderTextWithWords(text);
+            }
+            
+            stop();
+            
+            const stability = parseFloat(document.getElementById('stabilitySlider').value);
+            const similarity = parseFloat(document.getElementById('similaritySlider').value);
+            
+            showStatus(`⏳ ${voiceName}`);
+            clearHighlights();
+            
+            try {
+                const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'xi-api-key': apiKey
+                    },
+                    body: JSON.stringify({
+                        text: text,
+                        model_id: 'eleven_multilingual_v2',
+                        voice_settings: { 
+                            stability: stability,
+                            similarity_boost: similarity
+                        }
+                    })
+                });
+                
+                if (!response.ok) throw new Error(`Fel ${response.status}`);
+                
+                const audioBlob = await response.blob();
+                currentAudio = new Audio(URL.createObjectURL(audioBlob));
+                
+                currentAudio.onplay = () => {
+                    showStatus(`🔊 ${voiceName}`, 'playing');
+                    updateButtons(true);
+                    startWordHighlighting();
+                };
+                
+                currentAudio.onended = () => {
+                    showStatus('✅ Färdig!', 'playing');
+                    clearHighlights();
+                    updateButtons(false);
+                    stopWordHighlighting();
+                };
+                
+                currentAudio.play();
+                
+            } catch (error) {
+                showStatus(`❌ ${error.message}`, 'error');
+            }
+        }
+
+        function pause() {
+            if (!currentAudio) return;
+            if (currentAudio.paused) {
+                currentAudio.play();
+                document.getElementById('pauseBtn').textContent = '⏸️ Pausa';
+                startWordHighlighting();
+            } else {
+                currentAudio.pause();
+                document.getElementById('pauseBtn').textContent = '▶️ Fortsätt';
+                stopWordHighlighting();
+            }
+        }
+
+        function stop() {
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio.currentTime = 0;
+            }
+            updateButtons(false);
+            clearHighlights();
+            stopWordHighlighting();
+            showStatus('⏹️ Stoppad');
+        }
+
+        function updateButtons(playing) {
+            document.getElementById('playBtn').disabled = playing;
+            document.getElementById('pauseBtn').disabled = !playing;
+            document.getElementById('stopBtn').disabled = !playing;
+            if (!playing) document.getElementById('pauseBtn').textContent = '⏸️ Pausa';
+        }
+
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('word') && currentAudio) {
+                const index = parseInt(e.target.dataset.index);
+                currentWordIndex = index;
+                highlightWord(index);
+            }
+        });
+    </script>
+</body>
+</html>
